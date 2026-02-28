@@ -8,8 +8,30 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🎓 Student Success Dashboard")
-st.markdown("Explore the academic success and dropout dataset.")
+st.title("🎓 Indian Student Success Portal")
+st.markdown("Explore your academic dashboard, scholarships, and daily general knowledge.")
+
+# Authentication
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+
+if not st.session_state['logged_in']:
+    st.write("### Welcome! Please log in to access your portal.")
+    with st.form("login_form"):
+        username = st.text_input("Username (Hint: student)")
+        password = st.text_input("Password (Hint: india2026)", type="password")
+        submit_button = st.form_submit_button("Sign In")
+        
+        if submit_button:
+            if username == "student" and password == "india2026":
+                st.session_state['logged_in'] = True
+                st.success("Logged in successfully! Reloading...")
+                st.rerun()
+            else:
+                st.error("Invalid credentials. Please use the hints!")
+    st.stop() # Halt execution if not logged in
+
+st.sidebar.button("Logout", on_click=lambda: st.session_state.update(logged_in=False) or st.rerun())
 
 @st.cache_data
 def load_data():
@@ -35,7 +57,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2 = st.tabs(["Dashboard", "Predictor Page"])
+    tab1, tab2, tab3, tab4 = st.tabs(["Dashboard", "Predictor Page", "Scholarships (India)", "General Knowledge"])
     
     with tab1:
         # Live Metrics
@@ -162,6 +184,46 @@ try:
                 )
                 
                 st.altair_chart(comp_chart, use_container_width=False)
+
+    with tab3:
+        st.write("### 🇮🇳 Top Indian Student Scholarships")
+        st.markdown("Explore national and state scholarships available to support your academic success.")
+        
+        with st.expander("National Scholarship Portal (NSP) - Pre/Post Matric", expanded=True):
+            st.write("**Eligibility:** Students from minority communities from Class 1 up to Ph.D. level.")
+            st.write("**Benefits:** Admission + Tuition fee and maintenance allowance.")
+            st.markdown("[View Details on NSP](https://scholarships.gov.in/)")
+            
+        with st.expander("AICTE Pragati Scholarship for Girls"):
+            st.write("**Eligibility:** Maximum 2 girl children per family entering AICTE approved technical degree/diploma courses.")
+            st.write("**Benefits:** Up to ₹50,000 per annum for every year of study.")
+            st.markdown("[View AICTE Portal](https://www.aicte-india.org/)")
+            
+        with st.expander("Prime Minister's Special Scholarship Scheme (PMSSS)"):
+            st.write("**Eligibility:** Students from Jammu & Kashmir and Ladakh pursuing undergrad studies outside the UTs.")
+            st.write("**Benefits:** Academic fee and maintenance allowance up to ₹3 Lakhs/year.")
+
+    with tab4:
+        st.write("### 🧠 General Knowledge & Fun Facts")
+        
+        col_gk1, col_gk2 = st.columns(2)
+        with col_gk1:
+            st.info("**Fact of the Day:** India established the first university in the world, Takshashila, in 700 BC. More than 10,500 students from all over the world studied more than 60 different subjects there!")
+            st.success("**Science Fact:** Aryabhata (born 476 CE) was the first of the major mathematician-astronomers from the classical age of Indian mathematics. He deduced that the Earth is round and rotates on its own axis.")
+            
+        with col_gk2:
+            st.write("#### Daily Mini-Quiz")
+            quiz_answer = st.radio("What is the capital of the state of Karnataka?", 
+                                   ["Mysuru", "Bengaluru", "Mangaluru", "Hubballi"], 
+                                   index=None)
+            if st.button("Submit Answer"):
+                if quiz_answer == "Bengaluru":
+                    st.success("Correct! Bengaluru is the capital of Karnataka and the center of India's high-tech industry.")
+                    st.balloons()
+                elif quiz_answer:
+                    st.error("Incorrect! Give it another try.")
+                else:
+                    st.warning("Please select an answer before submitting.")
 
 except Exception as e:
     st.error(f"Error loading data: {e}")
