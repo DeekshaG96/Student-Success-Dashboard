@@ -11,9 +11,11 @@ st.set_page_config(
 st.title("🎓 Indian Student Success Portal")
 st.markdown("Explore your academic dashboard, scholarships, and daily general knowledge.")
 
-# Authentication
+# Authentication & Global State
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
+if 'student_goals' not in st.session_state:
+    st.session_state['student_goals'] = ["Register for JEE Main", "Complete Physics Mock Test"]
 
 if not st.session_state['logged_in']:
     st.write("### Welcome! Please log in to access your portal.")
@@ -57,7 +59,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Dashboard", "Predictor Page", "Scholarships (India)", "General Knowledge"])
+    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Dashboard", "Predictor Page", "Scholarships (India)", "General Knowledge", "Career Guidance", "My Goals"])
     
     with tab1:
         # Live Metrics
@@ -255,6 +257,65 @@ try:
                         st.success(f"**Perfect Score! {score}/2**")
                     else:
                         st.info(f"**Total Score: {score}/2**. Keep learning!")
+
+    with tab5:
+        st.write("### 🧭 Indian Career & Entrance Exam Guidance")
+        st.write("Select your 12th-grade stream to see the most popular degree paths and required entrance exams in India.")
+        
+        stream = st.selectbox("Select Your 12th Grade Stream:", ["Science (PCM)", "Science (PCB)", "Commerce", "Arts/Humanities"])
+        
+        col_c1, col_c2 = st.columns(2)
+        if stream == "Science (PCM)":
+            with col_c1:
+                st.info("**Top Degree Paths:** \n\n* B.Tech / B.E. (Engineering)\n* B.Arch (Architecture)\n* B.Sc. (Physics/Chemistry/Math)\n* BCA (Computer Applications)")
+            with col_c2:
+                st.warning("**Major Entrance Exams:** \n\n* JEE Main & Advanced\n* BITSAT\n* VITEEE\n* State CETs (e.g., KCET, MHT-CET)")
+        elif stream == "Science (PCB)":
+            with col_c1:
+                st.info("**Top Degree Paths:** \n\n* MBBS / BDS (Medicine/Dentistry)\n* B.Sc. Nursing\n* B.Pharm (Pharmacy)\n* B.Sc. (Biology/Genetics/Agriculture)")
+            with col_c2:
+                st.warning("**Major Entrance Exams:** \n\n* NEET-UG\n* AIIMS Nursing\n* ICAR AIEEA\n* State-level Medical/Pharmacy CETs")
+        elif stream == "Commerce":
+            with col_c1:
+                st.info("**Top Degree Paths:** \n\n* B.Com (Hons.)\n* BBA / BMS (Management)\n* CA / CS / CMA (Professional)\n* B.A. Economics (Hons.)")
+            with col_c2:
+                st.warning("**Major Entrance Exams:** \n\n* CUET-UG (For Central Universities)\n* CA Foundation\n* SET / NPAT / IPMAT (For Management)")
+        elif stream == "Arts/Humanities":
+            with col_c1:
+                st.info("**Top Degree Paths:** \n\n* B.A. (Hons.) in History/Political Science/English\n* B.A. LLB (Law)\n* B.Des (Design)\n* Journalism & Mass Comm.")
+            with col_c2:
+                st.warning("**Major Entrance Exams:** \n\n* CUET-UG\n* CLAT / AILET (For Law)\n* NID DAT / NIFT (For Design)")
+
+    with tab6:
+        st.write("### 🎯 My Goals & Study Tracker")
+        st.markdown("Keep track of your study targets, form submissions, and daily task deadlines.")
+        
+        # Add a new goal
+        with st.form("add_goal_form", clear_on_submit=True):
+            new_goal = st.text_input("Add a new study goal or deadline:")
+            submitted_goal = st.form_submit_button("Add Goal")
+            if submitted_goal and new_goal:
+                st.session_state['student_goals'].append(new_goal)
+                st.rerun()
+                
+        # Display goals as an interactive checklist
+        st.write("#### Active Goals:")
+        if not st.session_state['student_goals']:
+            st.success("All caught up! You have no active goals.")
+        else:
+            # Create a separate list to avoid modifying the list while iterating
+            goals_to_remove = []
+            for i, goal in enumerate(st.session_state['student_goals']):
+                # If the user checks the box, we mark it for removal
+                completed = st.checkbox(f"📍 {goal}", key=f"goal_{i}")
+                if completed:
+                    goals_to_remove.append(goal)
+            
+            # If any were checked, remove them and rerun to refresh the UI
+            if goals_to_remove:
+                for completed_goal in goals_to_remove:
+                    st.session_state['student_goals'].remove(completed_goal)
+                st.rerun()
 
 except Exception as e:
     st.error(f"Error loading data: {e}")
