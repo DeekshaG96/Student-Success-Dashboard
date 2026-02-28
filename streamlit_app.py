@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import altair as alt
 import google.generativeai as genai
+import streamlit_authenticator as stauth
+import os
 
 st.set_page_config(
     page_title="Student Success Dashboard",
@@ -78,8 +80,6 @@ st.markdown('<h1 class="title-glow">⚡ Advanced Engineering Student Portal</h1>
 st.markdown("<p style='text-align: center; color: #94a3b8;'>Your centralized hub for AI Guidance, Tech Prep, and Advanced Engineering Analytics.</p>", unsafe_allow_html=True)
 
 # Authentication & Global State
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
 if 'student_goals' not in st.session_state:
     st.session_state['student_goals'] = [("Register for JEE Main", "2026-03-15"), ("Complete Physics Mock Test", "2026-03-01")]
 if 'xp' not in st.session_state:
@@ -87,25 +87,36 @@ if 'xp' not in st.session_state:
 if 'level' not in st.session_state:
     st.session_state['level'] = 1
 if 'messages' not in st.session_state:
-    st.session_state['messages'] = [{"role": "assistant", "content": "Hello! I am your AI Career Counselor. How can I help you regarding degrees, exams, or scholarships today?"}]
+    st.session_state['messages'] = [{"role": "assistant", "content": "Hello! I am your SIT AI Academic Mentor. How can I help you regarding VTU exams, GATE 2027, or scholarships today?"}]
 
-if not st.session_state['logged_in']:
-    st.write("### Welcome! Please log in to access your portal.")
-    with st.form("login_form"):
-        username = st.text_input("Username (Hint: student)")
-        password = st.text_input("Password (Hint: india2026)", type="password")
-        submit_button = st.form_submit_button("Sign In")
-        
-        if submit_button:
-            if username == "student" and password == "india2026":
-                st.session_state['logged_in'] = True
-                st.success("Logged in successfully! Reloading...")
-                st.rerun()
-            else:
-                st.error("Invalid credentials. Please use the hints!")
-    st.stop() # Halt execution if not logged in
+# Initialize Authenticator
+authenticator = stauth.Authenticate(
+    st.secrets['credentials'],
+    st.secrets['cookie']['name'],
+    st.secrets['cookie']['key'],
+    st.secrets['cookie']['expiry_days']
+)
 
-st.sidebar.button("Logout", on_click=lambda: st.session_state.update(logged_in=False) or st.rerun())
+# Login UI
+col_l1, col_l2, col_l3 = st.columns([1, 2, 1])
+with col_l2:
+    if os.path.exists("sit_logo.png"):
+        st.image("sit_logo.png", width=150)
+    else:
+        st.write("### 🎓 Srinivas Institute of Technology")
+    
+    name, authentication_status, username = authenticator.login('Login', 'main')
+
+if authentication_status == False:
+    st.error('Username/password is incorrect')
+    st.stop()
+elif authentication_status == None:
+    st.warning('Please enter your username and password')
+    st.stop()
+
+# Successful Login - Branding in Sidebar
+st.sidebar.image("sit_logo.png", width=100) if os.path.exists("sit_logo.png") else st.sidebar.write("### SIT Portal")
+authenticator.logout('Logout', 'sidebar')
 
 @st.cache_data
 def load_data():
@@ -159,7 +170,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(["⚡ Smart Dashboard", "🔮 Predictor (AI)", "💰 Scholarships", "🚀 GATE Prep", "🧭 Career Paths", "🏆 Top Colleges", "📰 Tech News", "🎯 My Goals", "🤖 AI Counselor", "🧘 Zen Study Hub"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(["⚡ Smart Dashboard", "🔮 Predictor (AI)", "🇮🇳 Indian Student Resource Center", "🚀 GATE Prep", "🧭 Career Paths", "🏆 Top Colleges", "📰 Tech News", "🎯 My Goals", "🧠 AI Mentor (SIT)", "🧘 Zen Study Hub"])
     
     with tab1:
         # Smart Dashboard Homepage
@@ -529,8 +540,8 @@ try:
             )
 
     with tab9:
-        st.write("### 🤖 AI Career Counselor")
-        st.markdown("Chat with your personalized AI assistant! Ask anything about coding, degree paths, scholarships, or entrance exams.")
+        st.write("### 🧠 SIT AI Academic Mentor")
+        st.markdown("Your specialized assistant for VTU academic updates, SIT campus resources, and GATE 2027 preparation strategy.")
         
         # Render existing chat messages
         for msg in st.session_state.messages:
@@ -553,7 +564,7 @@ try:
                     genai.configure(api_key=gemini_key)
                     
                     # System instructions for Gemini 2.5 Flash
-                    system_instruction = "You are a helpful Indian academic counselor. Give short, concise, and accurate advice to students regarding degrees, exams, and scholarships in India."
+                    system_instruction = "You are a specialized academic mentor for students at Srinivas Institute of Technology (SIT), Mangaluru. Provide expert advice on VTU 2022/2026 schemes, GATE 2027 preparation (focus on CSBS/CS subjects), and Karnataka scholarship deadlines (SSP/NSP). Keep responses professional, student-centric, and highly actionable."
                     model = genai.GenerativeModel(
                         model_name="gemini-2.5-flash",
                         system_instruction=system_instruction
@@ -702,8 +713,8 @@ try:
     st.markdown("---")
     st.markdown("""
         <div style="text-align: center; color: #64748b; font-size: 0.9em; padding: 20px;">
-            <p><strong>Indian Student Success Portal v2.0</strong> | Built with ❤️ using Streamlit & Google Gemini</p>
-            <p>Empowering the next generation of students with AI technology and data-driven insights.</p>
+            <p><strong>SIT Student Success & Wellness Hub v1.0</strong> | Built for Srinivas Institute of Technology</p>
+            <p>Powered by Streamlit & Google Gemini Pro</p>
         </div>
     """, unsafe_allow_html=True)
 
