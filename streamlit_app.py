@@ -89,9 +89,20 @@ if 'level' not in st.session_state:
 if 'messages' not in st.session_state:
     st.session_state['messages'] = [{"role": "assistant", "content": "Hello! I am your SIT AI Academic Mentor. How can I help you regarding VTU exams, GATE 2027, or scholarships today?"}]
 
-# Initialize Authenticator
+# Initialize Authenticator with mutable dictionary (st.secrets is immutable)
+credentials = st.secrets.get('credentials')
+if credentials:
+    credentials_dict = {
+        'usernames': {
+            username: dict(user_info) 
+            for username, user_info in credentials['usernames'].items()
+        }
+    }
+else:
+    credentials_dict = {'usernames': {}}
+
 authenticator = stauth.Authenticate(
-    st.secrets['credentials'],
+    credentials_dict,
     st.secrets['cookie']['name'],
     st.secrets['cookie']['key'],
     st.secrets['cookie']['expiry_days']
