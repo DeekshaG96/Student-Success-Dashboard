@@ -4,3 +4,4 @@ scikit-learn
 joblib
 altair
 vega_datasets
+huggingface_hub
