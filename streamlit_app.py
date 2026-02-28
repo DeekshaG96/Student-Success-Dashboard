@@ -477,10 +477,10 @@ try:
                     # Configure the Google Gemini Client
                     genai.configure(api_key=gemini_key)
                     
-                    # System instructions for Gemini 2.0 Flash
+                    # System instructions for Gemini 2.5 Flash
                     system_instruction = "You are a helpful Indian academic counselor. Give short, concise, and accurate advice to students regarding degrees, exams, and scholarships in India."
                     model = genai.GenerativeModel(
-                        model_name="gemini-2.0-flash",
+                        model_name="gemini-2.5-flash",
                         system_instruction=system_instruction
                     )
                     
