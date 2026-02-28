@@ -202,6 +202,16 @@ try:
         with st.expander("Prime Minister's Special Scholarship Scheme (PMSSS)"):
             st.write("**Eligibility:** Students from Jammu & Kashmir and Ladakh pursuing undergrad studies outside the UTs.")
             st.write("**Benefits:** Academic fee and maintenance allowance up to ₹3 Lakhs/year.")
+            
+        with st.expander("Kishore Vaigyanik Protsahan Yojana (KVPY)"):
+            st.write("**Eligibility:** Students from Class 11 to 1st year of any undergraduate program in Basic Sciences.")
+            st.write("**Benefits:** Monthly fellowship of ₹5,000 to ₹7,000 and an annual contingency grant.")
+            st.markdown("[View Details on Department of Science and Technology](https://dst.gov.in/)")
+            
+        with st.expander("National Talent Search Examination (NTSE)"):
+            st.write("**Eligibility:** Class 10 students studying in recognized schools across India.")
+            st.write("**Benefits:** Scholarships up to Ph.D. level for sciences and social sciences, and up to second-degree level for professional courses.")
+            st.markdown("[View Details on NCERT](https://ncert.nic.in/national-talent-examination.php)")
 
     with tab4:
         st.write("### 🧠 General Knowledge & Fun Facts")
@@ -213,17 +223,38 @@ try:
             
         with col_gk2:
             st.write("#### Daily Mini-Quiz")
-            quiz_answer = st.radio("What is the capital of the state of Karnataka?", 
-                                   ["Mysuru", "Bengaluru", "Mangaluru", "Hubballi"], 
-                                   index=None)
-            if st.button("Submit Answer"):
-                if quiz_answer == "Bengaluru":
-                    st.success("Correct! Bengaluru is the capital of Karnataka and the center of India's high-tech industry.")
-                    st.balloons()
-                elif quiz_answer:
-                    st.error("Incorrect! Give it another try.")
-                else:
-                    st.warning("Please select an answer before submitting.")
+            st.write("Test your Indian General Knowledge!")
+            
+            with st.form("gk_quiz_form"):
+                q1 = st.radio("1. What is the capital of the state of Karnataka?", 
+                                       ["Mysuru", "Bengaluru", "Mangaluru", "Hubballi"], 
+                                       index=None)
+                                       
+                q2 = st.radio("2. Which Indian scientist won the Nobel Prize for Physics in 1930 for his work on the scattering of light?",
+                                       ["Homi J. Bhabha", "Satyendra Nath Bose", "C.V. Raman", "Vikram Sarabhai"],
+                                       index=None)
+                                       
+                submit_quiz = st.form_submit_button("Submit Answers")
+                
+                if submit_quiz:
+                    score = 0
+                    if q1 == "Bengaluru":
+                        score += 1
+                        st.success("Q1 Correct! Bengaluru is the capital of Karnataka.")
+                    elif q1:
+                        st.error(f"Q1 Incorrect. You chose {q1}.")
+                        
+                    if q2 == "C.V. Raman":
+                        score += 1
+                        st.success("Q2 Correct! Sir C.V. Raman won the Nobel Prize for the 'Raman Effect'.")
+                    elif q2:
+                        st.error(f"Q2 Incorrect. You chose {q2}.")
+                        
+                    if score == 2:
+                        st.balloons()
+                        st.success(f"**Perfect Score! {score}/2**")
+                    else:
+                        st.info(f"**Total Score: {score}/2**. Keep learning!")
 
 except Exception as e:
     st.error(f"Error loading data: {e}")
