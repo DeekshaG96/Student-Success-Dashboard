@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
-from huggingface_hub import InferenceClient
+import google.generativeai as genai
 
 st.set_page_config(
     page_title="Student Success Dashboard",
@@ -459,7 +459,9 @@ try:
         
         # Render existing chat messages
         for msg in st.session_state.messages:
-            with st.chat_message(msg["role"]):
+            # Map Gemini's "model" role back to "assistant" for Streamlit UI
+            role = "assistant" if msg["role"] == "model" else msg["role"]
+            with st.chat_message(role):
                 st.markdown(msg["content"])
                 
         # Chat input box
@@ -467,27 +469,41 @@ try:
             st.chat_message("user").markdown(prompt)
             st.session_state.messages.append({"role": "user", "content": prompt})
             
-            hf_token = st.secrets.get("HF_TOKEN")
-            if not hf_token:
-                st.error("Missing Hugging Face API key in Streamlit secrets.")
+            gemini_key = st.secrets.get("GEMINI_API_KEY")
+            if not gemini_key:
+                st.error("Missing GEMINI_API_KEY in Streamlit secrets. Please add it to unlock the AI Counselor.")
             else:
                 try:
-                    # Configure the AI Client
-                    client = InferenceClient(token=hf_token)
-                    api_msgs = [{"role": "system", "content": "You are a helpful Indian academic counselor. Give short, concise, and accurate advice to students."}]
-                    api_msgs.extend(st.session_state.messages)
+                    # Configure the Google Gemini Client
+                    genai.configure(api_key=gemini_key)
+                    
+                    # System instructions for Gemini 1.5 Flash
+                    system_instruction = "You are a helpful Indian academic counselor. Give short, concise, and accurate advice to students regarding degrees, exams, and scholarships in India."
+                    model = genai.GenerativeModel(
+                        model_name="gemini-1.5-flash",
+                        system_instruction=system_instruction
+                    )
+                    
+                    # Gemini requires chat history in a specific format: {"role": "user"|"model", "parts": ["text"]}
+                    # We must filter out any legacy "assistant" roles from previous sessions
+                    history = []
+                    for state_msg in st.session_state.messages[:-1]: # Exclude the prompt we just added
+                        role = "model" if state_msg["role"] == "assistant" else state_msg["role"]
+                        
+                        # Only allow valid Gemini roles
+                        if role in ["user", "model"]:
+                            history.append({"role": role, "parts": [state_msg["content"]]})
+                            
+                    # Initialize the chat session
+                    chat = model.start_chat(history=history)
                     
                     with st.chat_message("assistant"):
                         # Get AI response
-                        response = client.chat_completion(
-                            model="HuggingFaceH4/zephyr-7b-beta",
-                            messages=api_msgs,
-                            max_tokens=400
-                        )
-                        bot_reply = response.choices[0].message.content
+                        response = chat.send_message(prompt)
+                        bot_reply = response.text
                         st.markdown(bot_reply)
                         
-                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                    st.session_state.messages.append({"role": "model", "content": bot_reply})
                 except Exception as e:
                     st.error(f"Failed to connect to AI server. Error: {e}")
 
