@@ -9,8 +9,73 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🎓 Indian Student Success Portal")
-st.markdown("Explore your academic dashboard, scholarships, and daily general knowledge.")
+# Custom CSS Injection for Premium Dark Mode Aesthetics
+st.markdown("""
+<style>
+    /* Animated Gradient Title */
+    .title-glow {
+        font-weight: 800;
+        text-align: center;
+        background: linear-gradient(90deg, #0ea5e9, #3b82f6, #8b5cf6, #0ea5e9);
+        background-size: 300% 300%;
+        color: transparent;
+        -webkit-background-clip: text;
+        animation: gradient_anim 5s ease infinite;
+        padding-bottom: 10px;
+    }
+    
+    @keyframes gradient_anim {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Interactive Buttons */
+    div.stButton > button {
+        transition: all 0.3s ease-in-out;
+        border-radius: 8px;
+        background-color: rgba(30, 41, 59, 0.7);
+        border: 1px solid #334155;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        color: #e2e8f0;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 10px 15px rgba(14, 165, 233, 0.4);
+        border-color: #0ea5e9;
+        color: #0ea5e9;
+    }
+    
+    /* Glassmorphism Metric Cards & Expanders */
+    div[data-testid="metric-container"], div[data-testid="stExpander"] {
+        background: rgba(30, 41, 59, 0.6) !important;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-radius: 12px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-left: 4px solid #0ea5e9 !important;
+    }
+    
+    div[data-testid="metric-container"]:hover, div[data-testid="stExpander"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.4);
+        border-left: 4px solid #8b5cf6 !important;
+        background: rgba(30, 41, 59, 0.9) !important;
+    }
+    
+    /* Soften Sidebar Background */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        border-right: 1px solid #334155;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<h1 class="title-glow">⚡ Advanced Engineering Student Portal</h1>', unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #94a3b8;'>Your centralized hub for AI Guidance, Tech Prep, and Advanced Engineering Analytics.</p>", unsafe_allow_html=True)
 
 # Authentication & Global State
 if 'logged_in' not in st.session_state:
@@ -94,62 +159,56 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["Dashboard", "Predictor Page", "Scholarships", "GK Gauntlet", "Career Guidance", "Top Colleges (NIRF)", "2026 Exam News", "My Goals", "AI Counselor"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["⚡ Smart Dashboard", "🔮 Predictor (AI)", "💰 Scholarships", "🚀 GATE Prep", "🧭 Career Paths", "🏆 Top Colleges", "📰 Tech News", "🎯 My Goals", "🤖 AI Counselor"])
     
     with tab1:
-        # Live Metrics
-        st.write("### Key Performance Indicators")
-        total_students = len(df)
-        if total_students > 0:
-            dropout_rate = (len(df[df["target"] == "Dropout"]) / total_students) * 100
-            graduate_rate = (len(df[df["target"] == "Graduate"]) / total_students) * 100
-        else:
-            dropout_rate = 0.0
-            graduate_rate = 0.0
-            
+        # Smart Dashboard Homepage
+        st.write("### ⚡ Live Metrics & Daily Overview")
         col_m1, col_m2, col_m3 = st.columns(3)
-        col_m1.metric("Total Students", f"{total_students:,}")
-        col_m2.metric("Dropout Rate", f"{dropout_rate:.1f}%")
+        total_students = len(df)
+        dropout_rate = (len(df[df["target"] == "Dropout"]) / total_students * 100) if total_students else 0.0
+        graduate_rate = (len(df[df["target"] == "Graduate"]) / total_students * 100) if total_students else 0.0
+        
+        col_m1.metric("Total Profiles", f"{total_students:,}")
+        col_m2.metric("Dropout Risk", f"{dropout_rate:.1f}%")
         col_m3.metric("Graduation Rate", f"{graduate_rate:.1f}%")
         
         st.markdown("---")
         
-        # Enhanced Data Preview
-        with st.expander("Explore Raw Data & Statistics"):
-            st.write("#### Dataset Preview")
-            st.dataframe(df.head(20), use_container_width=True)
-            st.write("#### Descriptive Statistics for Numerical Features")
-            st.dataframe(df.describe(), use_container_width=True)
+        col_dash1, col_dash2 = st.columns([1, 1])
         
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.write("### Target Value Distribution")
-            target_counts = df["target"].value_counts().reset_index()
-            target_counts.columns = ["Target", "Count"]
-            
-            target_chart = alt.Chart(target_counts).mark_bar().encode(
-                x=alt.X("Target:N", title="Outcome"),
-                y=alt.Y("Count:Q", title="Number of Students"),
-                color=alt.Color("Target:N", legend=None)
-            ).properties(
-                height=400
-            )
-            st.altair_chart(target_chart, use_container_width=True)
-            
-        with col2:
-            st.write("### Previous Qualification Grade vs Target")
+        with col_dash1:
+            st.info("#### 🚀 Daily GATE Prep Question")
+            st.write("**Subject: Computer Networks**")
+            st.write("Which protocol uses both TCP and UDP?")
+            with st.expander("Show Answer"):
+                st.success("**DNS (Domain Name System)** uses UDP for fast queries and TCP for zone transfers.")
+                
+        with col_dash2:
+            st.warning("#### ⏳ Urgent Scholarship Deadlines")
+            st.write("National Scholarship Portal (NSP) and State Scholarship Portal (SSP):")
+            st.write("- **NSP Post-Matric (Engineering):** Closing in 14 Days")
+            st.write("- **SSP Fee Reimbursement:** Closing in 30 Days")
+            if st.button("Apply Now (External link)"):
+                st.markdown("[Go to NSP Portal](https://scholarships.gov.in/)")
+                
+        st.markdown("---")
+        st.write("### 🧠 Quick AI Assistance")
+        st.write("Have an urgent question about your engineering degree? Ask our Gemini AI Assistant directly from the dashboard!")
+        quick_prompt = st.text_input("Ask a quick question (or go to the AI Counselor tab for full chat):", placeholder="E.g., What are the best electives for a Software Engineering major?")
+        if quick_prompt:
+            st.info("Switch to the '🤖 AI Counselor' tab to continue this conversation in depth!")
+
+        # Data Preview Expander
+        with st.expander("Explore Raw Dataset & Distributions"):
+            st.dataframe(df.head(), use_container_width=True)
             if "Previous qualification (grade)" in df.columns:
-                grade_chart = alt.Chart(df).mark_boxplot().encode(
+                st.write("### Grade vs Outcome")
+                grade_chart = alt.Chart(df).mark_boxplot(color="#0ea5e9").encode(
                     x=alt.X("target:N", title="Outcome"),
                     y=alt.Y("Previous qualification (grade):Q", title="Previous Grade"),
-                    color=alt.Color("target:N", legend=None)
-                ).properties(
-                    height=400
-                )
+                ).properties(height=300)
                 st.altair_chart(grade_chart, use_container_width=True)
-            else:
-                st.info("Grade column not found.")
 
     with tab2:
         st.write("### Predict Student Success")
@@ -189,38 +248,28 @@ try:
             with col_in:
                 st.write("##### Enter Student Details")
                 with st.form("prediction_form"):
-                    grade = st.number_input("Previous Qualification Grade", min_value=0.0, max_value=200.0, value=120.0, step=1.0)
-                    age = st.number_input("Age at Enrollment", min_value=15, max_value=60, value=20)
+                    grade = st.slider("Previous Qualification Grade", 0.0, 200.0, 120.0, 1.0)
+                    age = st.slider("Age at Enrollment", 15, 60, 20)
                     submitted = st.form_submit_button("Predict Outcome")
                     
                     if submitted:
                         st.success("Prediction logic would execute here using your inputs!")
                         
             with col_viz:
-                st.write("##### Live Scenario Comparison")
-                # Create a comparison dataframe
-                avg_grade = df_raw["Previous qualification (grade)"].mean() if "Previous qualification (grade)" in df_raw.columns else 0
-                avg_age = df_raw["Age at enrollment"].mean() if "Age at enrollment" in df_raw.columns else 0
-                
-                comp_data = pd.DataFrame({
-                    "Metric": ["Previous Grade", "Previous Grade", "Age at Enrollment", "Age at Enrollment"],
-                    "Value": [grade, avg_grade, age, avg_age],
-                    "Type": ["Your Input", "Historical Average", "Your Input", "Historical Average"]
+                st.write("##### Dynamic Probability Gauge")
+                # Visualizing the input dynamically as a pseudo-gauge
+                base_prob = min(80, max(20, (grade / 200) * 100)) # Simple simulated prob
+                gauge_data = pd.DataFrame({
+                    "Outcome": ["Graduation Probability", "Risk Factor"],
+                    "Percentage": [base_prob, 100 - base_prob]
                 })
                 
-                comp_chart = alt.Chart(comp_data).mark_bar().encode(
-                    x=alt.X("Type:N", title=None, axis=alt.Axis(labels=False)),
-                    y=alt.Y("Value:Q", title="Value"),
-                    color=alt.Color("Type:N", legend=alt.Legend(title="Data Source", orient="bottom")),
-                    column=alt.Column("Metric:N", title="")
-                ).properties(
-                    width=150,
-                    height=300
-                ).configure_view(
-                    stroke='transparent'
-                )
+                gauge_chart = alt.Chart(gauge_data).mark_arc(innerRadius=50).encode(
+                    theta="Percentage:Q",
+                    color=alt.Color("Outcome:N", scale=alt.Scale(domain=["Graduation Probability", "Risk Factor"], range=["#0ea5e9", "#ef4444"]))
+                ).properties(height=300)
                 
-                st.altair_chart(comp_chart, use_container_width=False)
+                st.altair_chart(gauge_chart, use_container_width=True)
 
     with tab3:
         st.write("### 🇮🇳 Top Indian Student Scholarships")
@@ -251,56 +300,51 @@ try:
             st.markdown("[View Details on NCERT](https://ncert.nic.in/national-talent-examination.php)")
 
     with tab4:
-        st.write("### 🧠 General Knowledge & Fun Facts")
+        st.write("### 🚀 GATE Prep & Technical Gauntlet")
         
         col_gk1, col_gk2 = st.columns(2)
         with col_gk1:
-            st.info("**Fact of the Day:** India established the first university in the world, Takshashila, in 700 BC. More than 10,500 students from all over the world studied more than 60 different subjects there!")
-            st.success("**Science Fact:** Aryabhata (born 476 CE) was the first of the major mathematician-astronomers from the classical age of Indian mathematics. He deduced that the Earth is round and rotates on its own axis.")
+            st.info("**Fact of the Day:** The concept of 'Zero' as a number was first fully developed in India by Brahmagupta around 628 AD, an essential pillar for modern binary logic and Computer Science!")
+            st.success("**Tech Fact:** The Indian IT industry is projected to hit $350 billion in revenue by 2030, driven by AI, cloud computing, and massive global demand.")
             
         with col_gk2:
-            st.write("#### The 5-Question GK Gauntlet")
-            st.write("Test your ultimate Indian General Knowledge!")
+            st.write("#### The Daily 5-Question GATE Mini-Mock")
+            st.write("Test your core engineering concepts!")
             
-            with st.form("gk_quiz_form"):
-                q1 = st.radio("1. What is the capital of Karnataka?", 
-                                       ["Mysuru", "Bengaluru", "Mangaluru", "Hubballi"], 
+            with st.form("gate_quiz_form"):
+                q1 = st.radio("1. [Databases] Which normal form eliminates transitive dependencies?", 
+                                       ["1NF", "2NF", "3NF", "BCNF"], 
                                        index=None)
                                        
-                q2 = st.radio("2. Which Indian scientist won the 1930 Nobel Prize for Physics for the scattering of light?",
-                                       ["Homi J. Bhabha", "Satyendra Nath Bose", "C.V. Raman", "Vikram Sarabhai"],
+                q2 = st.radio("2. [OS] Which scheduling algorithm is optimal for minimizing average waiting time?",
+                                       ["FCFS", "SJF (Shortest Job First)", "Round Robin", "Priority Scheduling"],
                                        index=None)
                                        
-                q3 = st.radio("3. Who was the first Indian woman of Indian origin to go to space?",
-                                       ["Kalpana Chawla", "Sunita Williams", "Sirisha Bandla", "Shawna Pandya"],
+                q3 = st.radio("3. [Algorithms] What is the average-case time complexity of QuickSort?",
+                                       ["O(N)", "O(N log N)", "O(N^2)", "O(log N)"],
                                        index=None)
                                        
-                q4 = st.radio("4. Where is the Indian Space Research Organisation (ISRO) headquartered?",
-                                       ["New Delhi", "Hyderabad", "Thiruvananthapuram", "Bengaluru"],
+                q4 = st.radio("4. [Network] At which OSI layer does an IP Router operate?",
+                                       ["Physical Layer", "Data Link Layer", "Network Layer", "Transport Layer"],
                                        index=None)
                                        
-                q5 = st.radio("5. Which ancient Indian physician is widely known as the 'Father of Surgery'?",
-                                       ["Charaka", "Patanjali", "Sushruta", "Vagbhata"],
+                q5 = st.radio("5. [Digital Logic] A NAND gate is equivalent to an OR gate with...",
+                                       ["Inverted inputs", "Inverted output", "Both", "None"],
                                        index=None)
                                        
                 submit_quiz = st.form_submit_button("Submit Answers")
                 
                 if submit_quiz:
                     score = 0
-                    if q1 == "Bengaluru":
-                        score += 1
-                    if q2 == "C.V. Raman":
-                        score += 1
-                    if q3 == "Kalpana Chawla":
-                        score += 1
-                    if q4 == "Bengaluru":
-                        score += 1
-                    if q5 == "Sushruta":
-                        score += 1
+                    if q1 == "3NF": score += 1
+                    if q2 == "SJF (Shortest Job First)": score += 1
+                    if q3 == "O(N log N)": score += 1
+                    if q4 == "Network Layer": score += 1
+                    if q5 == "Inverted inputs": score += 1
                         
                     if score == 5:
                         st.balloons()
-                        st.success(f"**Perfect Score! You are a master! {score}/5**")
+                        st.success(f"**Perfect Score! You are GATE ready! {score}/5**")
                         # Gamification Reward
                         st.session_state['xp'] += 100
                         if st.session_state['xp'] >= (st.session_state['level'] * 100):
@@ -308,9 +352,9 @@ try:
                             st.session_state['level'] += 1
                             st.sidebar.success(f"Level Up! You are now Level {st.session_state['level']}!")
                     elif score >= 3:
-                        st.info(f"**Great Job! {score}/5**. Keep learning!")
+                        st.info(f"**Great Job! {score}/5**. Keep practicing!")
                     else:
-                        st.warning(f"**Total Score: {score}/5**. Better luck next time!")
+                        st.warning(f"**Total Score: {score}/5**. Review the concepts and try again!")
 
     with tab5:
         st.write("### 🧭 Indian Career & Entrance Exam Guidance")
