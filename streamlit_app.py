@@ -59,7 +59,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(["Dashboard", "Predictor Page", "Scholarships (India)", "General Knowledge", "Career Guidance", "My Goals"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Dashboard", "Predictor Page", "Scholarships", "GK Gauntlet", "Career Guidance", "Top Colleges (NIRF)", "2026 Exam News", "My Goals"])
     
     with tab1:
         # Live Metrics
@@ -300,6 +300,58 @@ try:
                 st.warning("**Major Entrance Exams:** \n\n* CUET-UG\n* CLAT / AILET (For Law)\n* NID DAT / NIFT (For Design)")
 
     with tab6:
+        st.write("### 🏆 Top Colleges in India (NIRF Rankings 2023-24)")
+        st.markdown("Explore the official highest-ranked institutions by the National Institutional Ranking Framework (GoI).")
+        
+        ranking_category = st.radio("Select Category:", ["Engineering", "Medical", "Management"], horizontal=True)
+        
+        if ranking_category == "Engineering":
+            eng_data = pd.DataFrame({
+                "Rank": [1, 2, 3, 4, 5],
+                "Institute": ["IIT Madras", "IIT Delhi", "IIT Bombay", "IIT Kanpur", "IIT Roorkee"],
+                "City": ["Chennai", "New Delhi", "Mumbai", "Kanpur", "Roorkee"],
+                "Score": [89.79, 87.09, 80.74, 80.65, 71.12]
+            })
+            st.dataframe(eng_data, hide_index=True, use_container_width=True)
+            
+        elif ranking_category == "Medical":
+            med_data = pd.DataFrame({
+                "Rank": [1, 2, 3, 4, 5],
+                "Institute": ["AIIMS Delhi", "PGIMER", "CMC Vellore", "NIMHANS", "JIPMER"],
+                "City": ["New Delhi", "Chandigarh", "Vellore", "Bengaluru", "Puducherry"],
+                "Score": [94.32, 81.10, 75.29, 72.46, 72.10]
+            })
+            st.dataframe(med_data, hide_index=True, use_container_width=True)
+            
+        elif ranking_category == "Management":
+            mgmt_data = pd.DataFrame({
+                "Rank": [1, 2, 3, 4, 5],
+                "Institute": ["IIM Ahmedabad", "IIM Bangalore", "IIM Kozhikode", "IIM Calcutta", "IIT Delhi"],
+                "City": ["Ahmedabad", "Bengaluru", "Kozhikode", "Kolkata", "New Delhi"],
+                "Score": [83.20, 80.89, 76.48, 75.53, 74.14]
+            })
+            st.dataframe(mgmt_data, hide_index=True, use_container_width=True)
+
+    with tab7:
+        st.write("### 📰 2026 Exam News & Policy Alerts")
+        st.markdown("Stay ahead with expected exam dates and major shifts in Indian education policy.")
+        
+        with st.container():
+            st.error("**🚨 Highly Anticipated 2026 Exam Dates (Expected Calendar)**")
+            col_ex1, col_ex2, col_ex3 = st.columns(3)
+            col_ex1.metric("JEE Main (Session 1)", "Jan 2026", "Registration: Nov 2025")
+            col_ex2.metric("NEET UG 2026", "May 2026", "Registration: Feb 2026")
+            col_ex3.metric("CUET UG 2026", "May 2026", "Registration: Mar 2026")
+            
+        st.markdown("---")
+        st.info("**📜 Recent Policy Spotlight: National Education Policy (NEP) 2020 rollout**")
+        st.write("""
+        * **4-Year UG Programs (FYUGP):** Most central universities now offer 4-year undergraduate degrees with multiple entry and exit points.
+        * **Exit Options:** Students can obtain a Certificate after Year 1, a Diploma after Year 2, a Bachelor's Degree after Year 3, and a Bachelor's with Research/Honours after Year 4.
+        * **Academic Bank of Credits (ABC):** Your academic credits are now securely stored digitally, enabling easier transfers between recognized institutions.
+        """)
+
+    with tab8:
         st.write("### 🎯 My Goals & Study Tracker")
         st.markdown("Keep track of your study targets, form submissions, and daily task deadlines.")
         
