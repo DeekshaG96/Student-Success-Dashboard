@@ -15,7 +15,7 @@ st.markdown("Explore your academic dashboard, scholarships, and daily general kn
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 if 'student_goals' not in st.session_state:
-    st.session_state['student_goals'] = ["Register for JEE Main", "Complete Physics Mock Test"]
+    st.session_state['student_goals'] = [("Register for JEE Main", "2026-03-15"), ("Complete Physics Mock Test", "2026-03-01")]
 
 if not st.session_state['logged_in']:
     st.write("### Welcome! Please log in to access your portal.")
@@ -224,16 +224,28 @@ try:
             st.success("**Science Fact:** Aryabhata (born 476 CE) was the first of the major mathematician-astronomers from the classical age of Indian mathematics. He deduced that the Earth is round and rotates on its own axis.")
             
         with col_gk2:
-            st.write("#### Daily Mini-Quiz")
-            st.write("Test your Indian General Knowledge!")
+            st.write("#### The 5-Question GK Gauntlet")
+            st.write("Test your ultimate Indian General Knowledge!")
             
             with st.form("gk_quiz_form"):
-                q1 = st.radio("1. What is the capital of the state of Karnataka?", 
+                q1 = st.radio("1. What is the capital of Karnataka?", 
                                        ["Mysuru", "Bengaluru", "Mangaluru", "Hubballi"], 
                                        index=None)
                                        
-                q2 = st.radio("2. Which Indian scientist won the Nobel Prize for Physics in 1930 for his work on the scattering of light?",
+                q2 = st.radio("2. Which Indian scientist won the 1930 Nobel Prize for Physics for the scattering of light?",
                                        ["Homi J. Bhabha", "Satyendra Nath Bose", "C.V. Raman", "Vikram Sarabhai"],
+                                       index=None)
+                                       
+                q3 = st.radio("3. Who was the first Indian woman of Indian origin to go to space?",
+                                       ["Kalpana Chawla", "Sunita Williams", "Sirisha Bandla", "Shawna Pandya"],
+                                       index=None)
+                                       
+                q4 = st.radio("4. Where is the Indian Space Research Organisation (ISRO) headquartered?",
+                                       ["New Delhi", "Hyderabad", "Thiruvananthapuram", "Bengaluru"],
+                                       index=None)
+                                       
+                q5 = st.radio("5. Which ancient Indian physician is widely known as the 'Father of Surgery'?",
+                                       ["Charaka", "Patanjali", "Sushruta", "Vagbhata"],
                                        index=None)
                                        
                 submit_quiz = st.form_submit_button("Submit Answers")
@@ -242,21 +254,22 @@ try:
                     score = 0
                     if q1 == "Bengaluru":
                         score += 1
-                        st.success("Q1 Correct! Bengaluru is the capital of Karnataka.")
-                    elif q1:
-                        st.error(f"Q1 Incorrect. You chose {q1}.")
-                        
                     if q2 == "C.V. Raman":
                         score += 1
-                        st.success("Q2 Correct! Sir C.V. Raman won the Nobel Prize for the 'Raman Effect'.")
-                    elif q2:
-                        st.error(f"Q2 Incorrect. You chose {q2}.")
+                    if q3 == "Kalpana Chawla":
+                        score += 1
+                    if q4 == "Bengaluru":
+                        score += 1
+                    if q5 == "Sushruta":
+                        score += 1
                         
-                    if score == 2:
+                    if score == 5:
                         st.balloons()
-                        st.success(f"**Perfect Score! {score}/2**")
+                        st.success(f"**Perfect Score! You are a master! {score}/5**")
+                    elif score >= 3:
+                        st.info(f"**Great Job! {score}/5**. Keep learning!")
                     else:
-                        st.info(f"**Total Score: {score}/2**. Keep learning!")
+                        st.warning(f"**Total Score: {score}/5**. Better luck next time!")
 
     with tab5:
         st.write("### 🧭 Indian Career & Entrance Exam Guidance")
@@ -290,28 +303,37 @@ try:
         st.write("### 🎯 My Goals & Study Tracker")
         st.markdown("Keep track of your study targets, form submissions, and daily task deadlines.")
         
-        # Add a new goal
+        # Add a new goal with a target date
         with st.form("add_goal_form", clear_on_submit=True):
-            new_goal = st.text_input("Add a new study goal or deadline:")
+            col_g1, col_g2 = st.columns([3, 1])
+            with col_g1:
+                new_goal = st.text_input("Add a new study goal or checklist item:")
+            with col_g2:
+                target_date = st.date_input("Target Date")
+                
             submitted_goal = st.form_submit_button("Add Goal")
             if submitted_goal and new_goal:
-                st.session_state['student_goals'].append(new_goal)
+                st.session_state['student_goals'].append((new_goal, target_date.strftime("%Y-%m-%d")))
                 st.rerun()
                 
         # Display goals as an interactive checklist
-        st.write("#### Active Goals:")
+        st.write("#### Active Calendar Goals:")
         if not st.session_state['student_goals']:
-            st.success("All caught up! You have no active goals.")
+            st.success("All caught up! You have no active goals in your calendar.")
         else:
-            # Create a separate list to avoid modifying the list while iterating
             goals_to_remove = []
-            for i, goal in enumerate(st.session_state['student_goals']):
-                # If the user checks the box, we mark it for removal
-                completed = st.checkbox(f"📍 {goal}", key=f"goal_{i}")
+            for i, goal_data in enumerate(st.session_state['student_goals']):
+                # Maintain backwards compatibility if switching from strings to tuples
+                if isinstance(goal_data, tuple):
+                    goal_text, goal_date = goal_data
+                    completed = st.checkbox(f"**[{goal_date}]** - 📍 {goal_text}", key=f"goal_{i}")
+                else:
+                    completed = st.checkbox(f"📍 {goal_data}", key=f"goal_{i}")
+                    
                 if completed:
-                    goals_to_remove.append(goal)
+                    goals_to_remove.append(goal_data)
             
-            # If any were checked, remove them and rerun to refresh the UI
+            # Remove checked items and rerun
             if goals_to_remove:
                 for completed_goal in goals_to_remove:
                     st.session_state['student_goals'].remove(completed_goal)
