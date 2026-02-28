@@ -199,7 +199,7 @@ try:
         if quick_prompt:
             st.info("Switch to the '🤖 AI Counselor' tab to continue this conversation in depth!")
 
-        # Data Preview Expander
+        # Data Preview & VTU Tools
         with st.expander("Explore Raw Dataset & Distributions"):
             st.dataframe(df.head(), use_container_width=True)
             if "Previous qualification (grade)" in df.columns:
@@ -209,6 +209,36 @@ try:
                     y=alt.Y("Previous qualification (grade):Q", title="Previous Grade"),
                 ).properties(height=300)
                 st.altair_chart(grade_chart, use_container_width=True)
+                
+        with st.expander("🧮 VTU SGPA/CGPA Calculator (2022 Scheme)"):
+            st.write("Calculate your SGPA based on the VTU 2022 grading scheme ('O' = 10 points for 90-100 marks).")
+            col_s1, col_s2 = st.columns(2)
+            with col_s1:
+                credits_1 = st.number_input("Subject 1 Credits", min_value=1, max_value=4, value=3, key="c1")
+                marks_1 = st.number_input("Subject 1 Marks (Out of 100)", min_value=0, max_value=100, value=95, key="m1")
+            with col_s2:
+                credits_2 = st.number_input("Subject 2 Credits", min_value=1, max_value=4, value=4, key="c2")
+                marks_2 = st.number_input("Subject 2 Marks (Out of 100)", min_value=0, max_value=100, value=85, key="m2")
+                
+            if st.button("Calculate SGPA"):
+                def get_grade_points(marks):
+                    if marks >= 90: return 10 # O
+                    elif marks >= 80: return 9 # A+
+                    elif marks >= 70: return 8 # A
+                    elif marks >= 60: return 7 # B+
+                    elif marks >= 55: return 6 # B
+                    elif marks >= 50: return 5 # C
+                    elif marks >= 40: return 4 # P
+                    else: return 0 # F
+                
+                gp1 = get_grade_points(marks_1)
+                gp2 = get_grade_points(marks_2)
+                
+                total_credits = credits_1 + credits_2
+                total_points = (gp1 * credits_1) + (gp2 * credits_2)
+                sgpa = total_points / total_credits if total_credits > 0 else 0
+                
+                st.success(f"**Your Estimated SGPA is: {sgpa:.2f}**")
 
     with tab2:
         st.write("### Predict Student Success")
@@ -307,6 +337,12 @@ try:
             st.info("**Fact of the Day:** The concept of 'Zero' as a number was first fully developed in India by Brahmagupta around 628 AD, an essential pillar for modern binary logic and Computer Science!")
             st.success("**Tech Fact:** The Indian IT industry is projected to hit $350 billion in revenue by 2030, driven by AI, cloud computing, and massive global demand.")
             
+            st.markdown("---")
+            st.write("#### 📝 Official GATE Mock Tests")
+            st.write("Practice with the official NPTEL simulated tests for GATE 2027.")
+            if st.button("Take Sunday Mock Test (External)"):
+                st.markdown("[Go to NPTEL GATE Portal](https://gate.nptel.ac.in/)")
+            
         with col_gk2:
             st.write("#### The Daily 5-Question GATE Mini-Mock")
             st.write("Test your core engineering concepts!")
@@ -357,13 +393,32 @@ try:
                         st.warning(f"**Total Score: {score}/5**. Review the concepts and try again!")
 
     with tab5:
-        st.write("### 🧭 Indian Career & Entrance Exam Guidance")
-        st.write("Select your 12th-grade stream to see the most popular degree paths and required entrance exams in India.")
+        st.write("### 🧭 Indian Career & AI Placement Roadmaps")
+        st.write("Select your domain to see the most popular degree paths, entrance exams, and AI-generated roadmaps.")
         
-        stream = st.selectbox("Select Your 12th Grade Stream:", ["Science (PCM)", "Science (PCB)", "Commerce", "Arts/Humanities"])
+        stream = st.selectbox("Select Your Focus Area:", ["Computer Science & Business Systems (CSBS)", "Science (PCM)", "Science (PCB)", "Commerce", "Arts/Humanities"])
         
         col_c1, col_c2 = st.columns(2)
-        if stream == "Science (PCM)":
+        if stream == "Computer Science & Business Systems (CSBS)":
+            with col_c1:
+                st.info("**Top Placements (2026):** \n\n* Cloud DevOps Engineer\n* Cyber Security Analyst\n* AI/ML Data Scientist\n* Enterprise Architect")
+                st.warning("**High-Weightage VTU Subjects:** \n\n* Discrete Mathematics\n* Operating Systems\n* Data Structures & Algorithms")
+            with col_c2:
+                st.write("#### 🗺️ AI-Generated Roadmaps")
+                with st.expander("🚀 DevOps Engineer Roadmap"):
+                    st.write("**Months 1-2:** Linux Administration (Bash/Shell) & Git/GitHub")
+                    st.write("**Months 3-4:** Networking Basics & AWS/Azure Cloud Practitioner")
+                    st.write("**Months 5-6:** CI/CD (Jenkins, GitHub Actions) & Docker/Kubernetes")
+                    st.write("**Months 7-8:** Infrastructure as Code (Terraform) & Monitoring (Prometheus/Grafana)")
+                    if st.button("Ask AI about DevOps"):
+                        st.info("Switch to the '🤖 AI Counselor' tab and ask: 'How do I start with Terraform for DevOps?'")
+                        
+                with st.expander("🛡️ Cyber Security Roadmap"):
+                    st.write("**Months 1-2:** CompTIA Security+ Basics & Networking Protocols (TCP/IP)")
+                    st.write("**Months 3-4:** Python Scripting & Ethical Hacking (Kali Linux, Nmap, Burp Suite)")
+                    st.write("**Months 5-6:** Web Application Security (OWASP Top 10) & Penetration Testing")
+                    st.write("**Months 7-8:** Incident Response & Security Information and Event Management (SIEM)")
+        elif stream == "Science (PCM)":
             with col_c1:
                 st.info("**Top Degree Paths:** \n\n* B.Tech / B.E. (Engineering)\n* B.Arch (Architecture)\n* B.Sc. (Physics/Chemistry/Math)\n* BCA (Computer Applications)")
             with col_c2:
@@ -383,6 +438,12 @@ try:
                 st.info("**Top Degree Paths:** \n\n* B.A. (Hons.) in History/Political Science/English\n* B.A. LLB (Law)\n* B.Des (Design)\n* Journalism & Mass Comm.")
             with col_c2:
                 st.warning("**Major Entrance Exams:** \n\n* CUET-UG\n* CLAT / AILET (For Law)\n* NID DAT / NIFT (For Design)")
+                
+        st.markdown("---")
+        st.error("#### 📢 VTU Vice Chancellor Grievance Portal")
+        st.write("Facing issues with VTU administration or exams? Reach out directly via the e-Vidhyarthi Mithra portal.")
+        if st.button("Open e-Vidhyarthi Mithra"):
+            st.markdown("[Go to Grievance Portal](https://vtu.ac.in/en/e-vidhyarthi-mithra/)")
 
     with tab6:
         st.write("### 🏆 Top Colleges in India (NIRF Rankings 2023-24)")
