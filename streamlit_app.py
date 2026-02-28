@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import altair as alt
+from huggingface_hub import InferenceClient
 
 st.set_page_config(
     page_title="Student Success Dashboard",
@@ -16,6 +17,12 @@ if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 if 'student_goals' not in st.session_state:
     st.session_state['student_goals'] = [("Register for JEE Main", "2026-03-15"), ("Complete Physics Mock Test", "2026-03-01")]
+if 'xp' not in st.session_state:
+    st.session_state['xp'] = 0
+if 'level' not in st.session_state:
+    st.session_state['level'] = 1
+if 'messages' not in st.session_state:
+    st.session_state['messages'] = [{"role": "assistant", "content": "Hello! I am your AI Career Counselor. How can I help you regarding degrees, exams, or scholarships today?"}]
 
 if not st.session_state['logged_in']:
     st.write("### Welcome! Please log in to access your portal.")
@@ -44,6 +51,17 @@ def load_data():
 try:
     df_raw = load_data()
     
+    with st.sidebar:
+        st.header("🎮 Student Profile")
+        st.markdown(f"**Level {st.session_state['level']}** Scholar")
+        
+        # Gamification XP progression logic
+        next_level_xp = st.session_state['level'] * 100
+        current_xp = st.session_state['xp']
+        progress = min(current_xp / next_level_xp, 1.0)
+        st.progress(progress, text=f"{current_xp}/{next_level_xp} XP to Level {st.session_state['level'] + 1}")
+        st.markdown("---")
+        
     # Sidebar Filters
     st.sidebar.header("Filter Data")
     
@@ -59,7 +77,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Dashboard", "Predictor Page", "Scholarships", "GK Gauntlet", "Career Guidance", "Top Colleges (NIRF)", "2026 Exam News", "My Goals"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["Dashboard", "Predictor Page", "Scholarships", "GK Gauntlet", "Career Guidance", "Top Colleges (NIRF)", "2026 Exam News", "My Goals", "AI Counselor"])
     
     with tab1:
         # Live Metrics
@@ -266,6 +284,12 @@ try:
                     if score == 5:
                         st.balloons()
                         st.success(f"**Perfect Score! You are a master! {score}/5**")
+                        # Gamification Reward
+                        st.session_state['xp'] += 100
+                        if st.session_state['xp'] >= (st.session_state['level'] * 100):
+                            st.session_state['xp'] = st.session_state['xp'] - (st.session_state['level'] * 100)
+                            st.session_state['level'] += 1
+                            st.sidebar.success(f"Level Up! You are now Level {st.session_state['level']}!")
                     elif score >= 3:
                         st.info(f"**Great Job! {score}/5**. Keep learning!")
                     else:
@@ -383,6 +407,12 @@ try:
                     completed = st.checkbox(f"📍 {goal_data}", key=f"goal_{i}")
                     
                 if completed:
+                    # Gamification Reward
+                    st.session_state['xp'] += 50
+                    if st.session_state['xp'] >= (st.session_state['level'] * 100):
+                        st.session_state['xp'] = st.session_state['xp'] - (st.session_state['level'] * 100)
+                        st.session_state['level'] += 1
+                        st.sidebar.success(f"Level Up! You are now Level {st.session_state['level']}!")
                     goals_to_remove.append(goal_data)
             
             # Remove checked items and rerun
@@ -390,6 +420,59 @@ try:
                 for completed_goal in goals_to_remove:
                     st.session_state['student_goals'].remove(completed_goal)
                 st.rerun()
+                
+        # Data Export Feature
+        if st.session_state['student_goals']:
+            st.markdown("---")
+            st.write("#### 💾 Export Your Data")
+            # Build DataFrame for Download
+            goals_export_df = pd.DataFrame(st.session_state['student_goals'], columns=["Goal", "Target Date"])
+            csv_data = goals_export_df.to_csv(index=False).encode('utf-8')
+            
+            st.download_button(
+                label="📥 Download Study Plan (CSV)",
+                data=csv_data,
+                file_name="my_study_plan.csv",
+                mime="text/csv",
+            )
+
+    with tab9:
+        st.write("### 🤖 AI Career Counselor")
+        st.markdown("Chat with your personalized AI assistant! Ask anything about coding, degree paths, scholarships, or entrance exams.")
+        
+        # Render existing chat messages
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+                
+        # Chat input box
+        if prompt := st.chat_input("Ask me about the difference between B.Tech and BCA..."):
+            st.chat_message("user").markdown(prompt)
+            st.session_state.messages.append({"role": "user", "content": prompt})
+            
+            hf_token = st.secrets.get("HF_TOKEN")
+            if not hf_token:
+                st.error("Missing Hugging Face API key in Streamlit secrets.")
+            else:
+                try:
+                    # Configure the AI Client
+                    client = InferenceClient(token=hf_token)
+                    api_msgs = [{"role": "system", "content": "You are a helpful Indian academic counselor. Give short, concise, and accurate advice to students."}]
+                    api_msgs.extend(st.session_state.messages)
+                    
+                    with st.chat_message("assistant"):
+                        # Get AI response
+                        response = client.chat_completion(
+                            model="HuggingFaceH4/zephyr-7b-beta",
+                            messages=api_msgs,
+                            max_tokens=400
+                        )
+                        bot_reply = response.choices[0].message.content
+                        st.markdown(bot_reply)
+                        
+                    st.session_state.messages.append({"role": "assistant", "content": bot_reply})
+                except Exception as e:
+                    st.error(f"Failed to connect to AI server. Error: {e}")
 
 except Exception as e:
     st.error(f"Error loading data: {e}")
