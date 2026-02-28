@@ -116,7 +116,8 @@ with col_l2:
     else:
         st.write("### 🎓 Srinivas Institute of Technology")
     
-    name, authentication_status, username = authenticator.login('Login', 'main')
+    # Corrected login call for v0.3.1
+    authentication_status = authenticator.login(location='main')
 
 if authentication_status == False:
     st.error('Username/password is incorrect')
@@ -127,7 +128,7 @@ elif authentication_status == None:
 
 # Successful Login - Branding in Sidebar
 st.sidebar.image("sit_logo.png", width=100) if os.path.exists("sit_logo.png") else st.sidebar.write("### SIT Portal")
-authenticator.logout('Logout', 'sidebar')
+authenticator.logout(location='sidebar')
 
 @st.cache_data
 def load_data():
