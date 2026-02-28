@@ -65,12 +65,29 @@ try:
     # Sidebar Filters
     st.sidebar.header("Filter Data")
     
-    # Map binary values for user-friendliness (assuming 1=Yes/Male, 0=No/Female based on typical encodings, though exact mappings might vary in this dataset)
-    gender_filter = st.sidebar.multiselect("Gender", options=df_raw["Gender"].unique(), default=df_raw["Gender"].unique())
-    scholarship_filter = st.sidebar.multiselect("Scholarship holder", options=df_raw["Scholarship holder"].unique(), default=df_raw["Scholarship holder"].unique())
-    displaced_filter = st.sidebar.multiselect("Displaced", options=df_raw["Displaced"].unique(), default=df_raw["Displaced"].unique())
+    # Define mappings for user-friendly labels
+    gender_map = {1: "Male", 0: "Female"}
+    gender_inv = {"Male": 1, "Female": 0}
     
-    # Apply filters
+    bool_map = {1: "Yes", 0: "No"}
+    bool_inv = {"Yes": 1, "No": 0}
+    
+    # Get unique dataset values and map them to strings
+    avail_genders = [gender_map.get(x, str(x)) for x in df_raw["Gender"].unique()]
+    avail_scholars = [bool_map.get(x, str(x)) for x in df_raw["Scholarship holder"].unique()]
+    avail_displaced = [bool_map.get(x, str(x)) for x in df_raw["Displaced"].unique()]
+    
+    # Render user-friendly multiselects
+    gender_selection = st.sidebar.multiselect("Gender", options=avail_genders, default=avail_genders)
+    scholarship_selection = st.sidebar.multiselect("Scholarship holder", options=avail_scholars, default=avail_scholars)
+    displaced_selection = st.sidebar.multiselect("Displaced", options=avail_displaced, default=avail_displaced)
+    
+    # Translate string selections back to integers before filtering
+    gender_filter = [gender_inv.get(x, x) for x in gender_selection]
+    scholarship_filter = [bool_inv.get(x, x) for x in scholarship_selection]
+    displaced_filter = [bool_inv.get(x, x) for x in displaced_selection]
+    
+    # Apply filters using integer values
     df = df_raw[
         (df_raw["Gender"].isin(gender_filter)) &
         (df_raw["Scholarship holder"].isin(scholarship_filter)) &
