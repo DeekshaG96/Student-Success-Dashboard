@@ -13,8 +13,8 @@ st.markdown("Explore the academic success and dropout dataset.")
 
 @st.cache_data
 def load_data():
-    csv_path = r"c:\Users\DEEKSHA\Downloads\archive (2)\students_dropout_academic_success.csv"
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv("students_dropout_academic_success.csv")
+   
     return df
 
 try:
