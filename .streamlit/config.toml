@@ -1,11 +1,11 @@
 [theme]
 base = "dark"
 
-# Premium Engineering Dark Mode
-textColor = "#e2e8f0"
-primaryColor = "#0ea5e9"
-backgroundColor = "#0f172a"
-secondaryBackgroundColor = "#1e293b"
+# Premium Deep Sea Blue Mode
+textColor = "#E0F7FA"
+primaryColor = "#00B4D8"
+backgroundColor = "#03045E"
+secondaryBackgroundColor = "#0077B6"
 
 # Widgets
 showWidgetBorder = true

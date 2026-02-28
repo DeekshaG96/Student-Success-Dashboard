@@ -159,7 +159,7 @@ try:
         (df_raw["Displaced"].isin(displaced_filter))
     ]
     
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9 = st.tabs(["⚡ Smart Dashboard", "🔮 Predictor (AI)", "💰 Scholarships", "🚀 GATE Prep", "🧭 Career Paths", "🏆 Top Colleges", "📰 Tech News", "🎯 My Goals", "🤖 AI Counselor"])
+    tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8, tab9, tab10 = st.tabs(["⚡ Smart Dashboard", "🔮 Predictor (AI)", "💰 Scholarships", "🚀 GATE Prep", "🧭 Career Paths", "🏆 Top Colleges", "📰 Tech News", "🎯 My Goals", "🤖 AI Counselor", "🧘 Zen Study Hub"])
     
     with tab1:
         # Smart Dashboard Homepage
@@ -199,7 +199,7 @@ try:
         if quick_prompt:
             st.info("Switch to the '🤖 AI Counselor' tab to continue this conversation in depth!")
 
-        # Data Preview & VTU Tools
+        # Data Preview & Tools
         with st.expander("Explore Raw Dataset & Distributions"):
             st.dataframe(df.head(), use_container_width=True)
             if "Previous qualification (grade)" in df.columns:
@@ -209,36 +209,6 @@ try:
                     y=alt.Y("Previous qualification (grade):Q", title="Previous Grade"),
                 ).properties(height=300)
                 st.altair_chart(grade_chart, use_container_width=True)
-                
-        with st.expander("🧮 VTU SGPA/CGPA Calculator (2022 Scheme)"):
-            st.write("Calculate your SGPA based on the VTU 2022 grading scheme ('O' = 10 points for 90-100 marks).")
-            col_s1, col_s2 = st.columns(2)
-            with col_s1:
-                credits_1 = st.number_input("Subject 1 Credits", min_value=1, max_value=4, value=3, key="c1")
-                marks_1 = st.number_input("Subject 1 Marks (Out of 100)", min_value=0, max_value=100, value=95, key="m1")
-            with col_s2:
-                credits_2 = st.number_input("Subject 2 Credits", min_value=1, max_value=4, value=4, key="c2")
-                marks_2 = st.number_input("Subject 2 Marks (Out of 100)", min_value=0, max_value=100, value=85, key="m2")
-                
-            if st.button("Calculate SGPA"):
-                def get_grade_points(marks):
-                    if marks >= 90: return 10 # O
-                    elif marks >= 80: return 9 # A+
-                    elif marks >= 70: return 8 # A
-                    elif marks >= 60: return 7 # B+
-                    elif marks >= 55: return 6 # B
-                    elif marks >= 50: return 5 # C
-                    elif marks >= 40: return 4 # P
-                    else: return 0 # F
-                
-                gp1 = get_grade_points(marks_1)
-                gp2 = get_grade_points(marks_2)
-                
-                total_credits = credits_1 + credits_2
-                total_points = (gp1 * credits_1) + (gp2 * credits_2)
-                sgpa = total_points / total_credits if total_credits > 0 else 0
-                
-                st.success(f"**Your Estimated SGPA is: {sgpa:.2f}**")
 
     with tab2:
         st.write("### Predict Student Success")
@@ -612,6 +582,122 @@ try:
                 except Exception as e:
                     st.error(f"Failed to connect to AI server. Error: {e}")
 
+    with tab10:
+        st.write("### 🧘 Zen Study Hub")
+        st.markdown("Take a deep breath. Filter out distractions and focus on your academic goals.")
+        
+        col_zen1, col_zen2 = st.columns([2, 1])
+        with col_zen1:
+            st.write("#### ⏳ Pomodoro Focus Timer")
+            st.write("Select an ambient soundtrack and start your session.")
+            
+            # Simple JS-based Pomodoro Timer with Audio
+            pomodoro_html = '''
+            <div style="background-color: #0077B6; padding: 20px; border-radius: 10px; text-align: center; color: white; font-family: sans-serif;">
+                <h1 id="timer" style="font-size: 4rem; margin: 10px;">25:00</h1>
+                <button onclick="startTimer()" style="background-color: #00B4D8; border: none; padding: 10px 20px; color: white; border-radius: 5px; cursor: pointer; font-size: 1.1rem; margin-right: 10px;">Start</button>
+                <button onclick="resetTimer()" style="background-color: #03045E; border: none; padding: 10px 20px; color: white; border-radius: 5px; cursor: pointer; font-size: 1.1rem;">Reset</button>
+                <div style="margin-top: 20px;">
+                    <label>Ambient Sound: </label>
+                    <select id="sound" onchange="changeSound()" style="padding: 5px; border-radius: 5px;">
+                        <option value="none">None</option>
+                        <option value="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1539c.mp3">Rain</option>
+                        <option value="https://cdn.pixabay.com/download/audio/2021/08/09/audio_f5f6244ab7.mp3">Forest</option>
+                        <option value="https://cdn.pixabay.com/download/audio/2022/03/17/audio_44ee90dabc.mp3">Temple Bells</option>
+                    </select>
+                </div>
+                <audio id="ambientPlayer" loop></audio>
+                
+                <script>
+                    let timeLeft = 1500; // 25 minutes
+                    let timerInterval;
+                    
+                    function updateDisplay() {
+                        let minutes = Math.floor(timeLeft / 60);
+                        let seconds = timeLeft % 60;
+                        document.getElementById('timer').innerText = 
+                            (minutes < 10 ? '0' : '') + minutes + ':' + 
+                            (seconds < 10 ? '0' : '') + seconds;
+                    }
+                    
+                    function startTimer() {
+                        if(timerInterval) clearInterval(timerInterval);
+                        let player = document.getElementById('ambientPlayer');
+                        if(player.src) player.play();
+                        
+                        timerInterval = setInterval(() => {
+                            timeLeft--;
+                            updateDisplay();
+                            if(timeLeft <= 0) {
+                                clearInterval(timerInterval);
+                                alert("Time for a 5 minute break!");
+                            }
+                        }, 1000);
+                    }
+                    
+                    function resetTimer() {
+                        clearInterval(timerInterval);
+                        timeLeft = 1500;
+                        updateDisplay();
+                        document.getElementById('ambientPlayer').pause();
+                    }
+                    
+                    function changeSound() {
+                        let player = document.getElementById('ambientPlayer');
+                        let sound = document.getElementById('sound').value;
+                        if(sound !== 'none') {
+                            player.src = sound;
+                            if(timerInterval) player.play();
+                        } else {
+                            player.src = '';
+                            player.pause();
+                        }
+                    }
+                </script>
+            </div>
+            '''
+            st.components.v1.html(pomodoro_html, height=250)
+            
+            st.markdown("---")
+            st.write("#### 🧠 AI Stress Relief Mentor")
+            st.write("Feeling overwhelmed by operating systems or discrete math? Ask for a quick mental reset.")
+            if st.button("Generate 5-Minute Stress Relief Exercise"):
+                gemini_key = st.secrets.get("GEMINI_API_KEY")
+                if gemini_key:
+                    with st.spinner("Generating exercise..."):
+                        try:
+                            genai.configure(api_key=gemini_key)
+                            model = genai.GenerativeModel("gemini-2.5-flash")
+                            response = model.generate_content("Provide a calming, highly specific 5-minute stress relief exercise (breathing, stretching, or mental visualization) designed specifically for an overwhelmed engineering student. Keep it short, compassionate, and actionable.")
+                            st.success(response.text)
+                        except Exception as e:
+                            st.error(f"Failed to fetch exercise: {e}")
+                else:
+                    st.error("Missing GEMINI_API_KEY. Add it to `.streamlit/secrets.toml`!")
+
+        with col_zen2:
+            st.warning("#### ⏰ Exam Alarm")
+            st.write("Set an upcoming study block.")
+            alarm_time = st.time_input("Target Focus Time")
+            if st.button("Save Alarm"):
+                st.session_state['exam_alarm'] = alarm_time
+                st.success(f"Alarm locked for {alarm_time.strftime('%I:%M %p')}!")
+                
+            if 'exam_alarm' in st.session_state:
+                st.info(f"**Active Schedule:** Next focus block at {st.session_state['exam_alarm'].strftime('%I:%M %p')}.")
+
+            st.markdown("---")
+            st.info("#### 🙏 Daily Gratitude")
+            st.write("What are you thankful for today?")
+            
+            if 'gratitude' not in st.session_state:
+                st.session_state['gratitude'] = ""
+                
+            gratitude_input = st.text_area("Log your thoughts:", value=st.session_state['gratitude'], height=100)
+            if st.button("Save Gratitude"):
+                st.session_state['gratitude'] = gratitude_input
+                st.success("Your log has been saved safely!")
+                
     # Professional Footer
     st.markdown("---")
     st.markdown("""
