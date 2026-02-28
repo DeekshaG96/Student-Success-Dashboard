@@ -18,13 +18,49 @@ def load_data():
     return df
 
 try:
-    df = load_data()
+    df_raw = load_data()
+    
+    # Sidebar Filters
+    st.sidebar.header("Filter Data")
+    
+    # Map binary values for user-friendliness (assuming 1=Yes/Male, 0=No/Female based on typical encodings, though exact mappings might vary in this dataset)
+    gender_filter = st.sidebar.multiselect("Gender", options=df_raw["Gender"].unique(), default=df_raw["Gender"].unique())
+    scholarship_filter = st.sidebar.multiselect("Scholarship holder", options=df_raw["Scholarship holder"].unique(), default=df_raw["Scholarship holder"].unique())
+    displaced_filter = st.sidebar.multiselect("Displaced", options=df_raw["Displaced"].unique(), default=df_raw["Displaced"].unique())
+    
+    # Apply filters
+    df = df_raw[
+        (df_raw["Gender"].isin(gender_filter)) &
+        (df_raw["Scholarship holder"].isin(scholarship_filter)) &
+        (df_raw["Displaced"].isin(displaced_filter))
+    ]
     
     tab1, tab2 = st.tabs(["Dashboard", "Predictor Page"])
     
     with tab1:
-        st.write("### Dataset Preview")
-        st.dataframe(df.head(20), use_container_width=True)
+        # Live Metrics
+        st.write("### Key Performance Indicators")
+        total_students = len(df)
+        if total_students > 0:
+            dropout_rate = (len(df[df["target"] == "Dropout"]) / total_students) * 100
+            graduate_rate = (len(df[df["target"] == "Graduate"]) / total_students) * 100
+        else:
+            dropout_rate = 0.0
+            graduate_rate = 0.0
+            
+        col_m1, col_m2, col_m3 = st.columns(3)
+        col_m1.metric("Total Students", f"{total_students:,}")
+        col_m2.metric("Dropout Rate", f"{dropout_rate:.1f}%")
+        col_m3.metric("Graduation Rate", f"{graduate_rate:.1f}%")
+        
+        st.markdown("---")
+        
+        # Enhanced Data Preview
+        with st.expander("Explore Raw Data & Statistics"):
+            st.write("#### Dataset Preview")
+            st.dataframe(df.head(20), use_container_width=True)
+            st.write("#### Descriptive Statistics for Numerical Features")
+            st.dataframe(df.describe(), use_container_width=True)
         
         col1, col2 = st.columns(2)
         
@@ -58,49 +94,74 @@ try:
 
     with tab2:
         st.write("### Predict Student Success")
-        st.info("The model connection is currently stubbed. You can plug in your Hugging Face space URL later.")
         
         @st.cache_resource
         def load_model_from_hf():
             """
-            Stub function to load a model from Hugging Face Hub.
-            Replace the 'REPO_ID' and 'MODEL_FILENAME' with your actual values once the space is created.
+            Function to load a model from Hugging Face Hub using Streamlit secrets.
             """
             try:
                 from huggingface_hub import hf_hub_download
                 import joblib
                 
-                # NOTE: Replace with actual Hugging Face Space details
-                REPO_ID = "YOUR-USERNAME/YOUR-SPACE-NAME"  
-                MODEL_FILENAME = "model.joblib"
-                
-                if REPO_ID == "YOUR-USERNAME/YOUR-SPACE-NAME":
-                    st.warning("Running with stubbed model connection. Returning a dummy predictor.")
-                    # Return a dummy model/function for the layout
-                    def dummy_predict(*args):
-                        return ["Graduate"]
-                    return dummy_predict
+                # Fetch secrets
+                REPO_ID = st.secrets["REPO_ID"]
+                HF_TOKEN = st.secrets["HF_TOKEN"]
+                # The model must be named exactly 'model.joblib'
+                MODEL_FILENAME = "model.joblib" 
                 
                 with st.spinner("Downloading model from Hugging Face..."):
-                    model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILENAME)
+                    model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILENAME, token=HF_TOKEN)
                     model = joblib.load(model_path)
                 return model
                 
             except Exception as model_error:
-                st.error(f"Error loading model from Hugging Face: {model_error}")
+                st.error("Model could not be loaded. Please ensure your Hugging Face Space is created and contains the model.joblib file.")
+                with st.expander("Show specific error"):
+                    st.error(f"{model_error}")
                 return None
                 
         model = load_model_from_hf()
         
         if model is not None:
-            st.write("#### Enter Student Details")
-            with st.form("prediction_form"):
-                grade = st.number_input("Previous Qualification Grade", min_value=0.0, max_value=20.0, value=12.0)
-                age = st.number_input("Age at Enrollment", min_value=15, max_value=60, value=20)
-                submitted = st.form_submit_button("Predict Outcome")
+            st.write("#### Predict & Compare")
+            col_in, col_viz = st.columns([1, 2])
+            
+            with col_in:
+                st.write("##### Enter Student Details")
+                with st.form("prediction_form"):
+                    grade = st.number_input("Previous Qualification Grade", min_value=0.0, max_value=200.0, value=120.0, step=1.0)
+                    age = st.number_input("Age at Enrollment", min_value=15, max_value=60, value=20)
+                    submitted = st.form_submit_button("Predict Outcome")
+                    
+                    if submitted:
+                        st.success("Prediction logic would execute here using your inputs!")
+                        
+            with col_viz:
+                st.write("##### Live Scenario Comparison")
+                # Create a comparison dataframe
+                avg_grade = df_raw["Previous qualification (grade)"].mean() if "Previous qualification (grade)" in df_raw.columns else 0
+                avg_age = df_raw["Age at enrollment"].mean() if "Age at enrollment" in df_raw.columns else 0
                 
-                if submitted:
-                    st.success("Prediction logic goes here.")
+                comp_data = pd.DataFrame({
+                    "Metric": ["Previous Grade", "Previous Grade", "Age at Enrollment", "Age at Enrollment"],
+                    "Value": [grade, avg_grade, age, avg_age],
+                    "Type": ["Your Input", "Historical Average", "Your Input", "Historical Average"]
+                })
+                
+                comp_chart = alt.Chart(comp_data).mark_bar().encode(
+                    x=alt.X("Type:N", title=None, axis=alt.Axis(labels=False)),
+                    y=alt.Y("Value:Q", title="Value"),
+                    color=alt.Color("Type:N", legend=alt.Legend(title="Data Source", orient="bottom")),
+                    column=alt.Column("Metric:N", title="")
+                ).properties(
+                    width=150,
+                    height=300
+                ).configure_view(
+                    stroke='transparent'
+                )
+                
+                st.altair_chart(comp_chart, use_container_width=False)
 
 except Exception as e:
     st.error(f"Error loading data: {e}")
