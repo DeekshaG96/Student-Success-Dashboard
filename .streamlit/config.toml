@@ -2,14 +2,14 @@
 base = "light"
 
 # General color setup
-textColor = "#1c1919"
-primaryColor = "#00d492"
-backgroundColor = "#fafafa"
-secondaryBackgroundColor = "#ffffff"
+textColor = "#1e293b" # Deep slate for readable contrast
+primaryColor = "#6366f1" # Vibrant Indigo for modern energy
+backgroundColor = "#f8fafc" # Soft off-white to let white cards pop
+secondaryBackgroundColor = "#ffffff" # Pure white for sidebar/cards
 
 # Widgets
 showWidgetBorder = true
-borderColor = "#e7e3e4"
+borderColor = "#cbd5e1"
 
 # Base text
 font = "'Open Sans':https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap"

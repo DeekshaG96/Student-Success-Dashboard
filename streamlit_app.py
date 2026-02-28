@@ -9,8 +9,68 @@ st.set_page_config(
     layout="wide",
 )
 
-st.title("🎓 Indian Student Success Portal")
-st.markdown("Explore your academic dashboard, scholarships, and daily general knowledge.")
+# Custom CSS Injection for Modern Aesthetics
+st.markdown("""
+<style>
+    /* Animated Gradient Title */
+    .title-glow {
+        font-weight: 800;
+        text-align: center;
+        background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899, #6366f1);
+        background-size: 300% 300%;
+        color: transparent;
+        -webkit-background-clip: text;
+        animation: gradient_anim 5s ease infinite;
+        padding-bottom: 10px;
+    }
+    
+    @keyframes gradient_anim {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    
+    /* Interactive Buttons */
+    div.stButton > button {
+        transition: all 0.3s ease-in-out;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    div.stButton > button:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 10px 15px rgba(99, 102, 241, 0.4);
+        border-color: #6366f1;
+        color: #6366f1;
+    }
+    
+    /* Hover Lift for Metric Cards & Expanders */
+    div[data-testid="metric-container"], div[data-testid="stExpander"] {
+        background-color: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+        border: 1px solid #f1f5f9;
+        border-left: 4px solid #6366f1;
+    }
+    
+    div[data-testid="metric-container"]:hover, div[data-testid="stExpander"]:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 20px rgba(0,0,0,0.1);
+        border-left: 4px solid #ec4899;
+    }
+    
+    /* Soften Sidebar Background */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border-right: 1px solid #e2e8f0;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<h1 class="title-glow">🎓 Indian Student Success Portal</h1>', unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b;'>Explore your interactive academic dashboard, scholarships, and daily general knowledge.</p>", unsafe_allow_html=True)
+st.markdown("---")
 
 # Authentication & Global State
 if 'logged_in' not in st.session_state:
