@@ -476,19 +476,25 @@ with tab_wellness:
             st.info(f"Exam Alarm successfully set for {exam_time.strftime('%I:%M %p')}. Stay concentrated!")
             
     st.divider()
-    st.subheader("🎧 Ambient Sounds")
-    sound_choice = st.selectbox("Select soundscape:", ["Temple Bells", "Rain", "Deep Space", "Ocean Waves"])
+    st.subheader("🎧 24/7 Zen Focus Radio")
+    st.write("Live, ad-free ambient streams to keep you in the flow state.")
+    sound_choice = st.selectbox("Select soundscape:", [
+        "Deep Focus (Groove Salad)", 
+        "Coding Hacker (Def Con)", 
+        "Deep Space Ambient", 
+        "Zen Meditation (Drone Zone)"
+    ])
     
     ambient_maps = {
-        "Temple Bells": "https://www.youtube.com/watch?v=1zxDte52Fik",
-        "Rain": "https://www.youtube.com/watch?v=mPZkdNFkNps",
-        "Deep Space": "https://www.youtube.com/watch?v=1n0_51WioXY",
-        "Ocean Waves": "https://www.youtube.com/watch?v=bn9F19Hi1Lk"
+        "Deep Focus (Groove Salad)": "https://ice1.somafm.com/groovesalad-128-mp3",
+        "Coding Hacker (Def Con)": "https://ice1.somafm.com/defcon-128-mp3",
+        "Deep Space Ambient": "https://ice1.somafm.com/deepspaceone-128-mp3",
+        "Zen Meditation (Drone Zone)": "https://ice1.somafm.com/dronezone-128-mp3"
     }
     
     selected_url = ambient_maps.get(sound_choice)
-    st.video(selected_url)
-    st.caption(f"Currently playing: {sound_choice} ambient immersion.")
+    st.audio(selected_url, format="audio/mp3")
+    st.caption(f"Currently streaming: {sound_choice} via SomaFM (No YouTube Blocking Issues).")
 
 # --- FEATURE 5: BRAIN GAMES HUB ---
 with tab_games:
