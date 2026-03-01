@@ -18,10 +18,104 @@ from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="International Student Success & Wellness Hub", 
+    page_title="SIT Global Success Hub", 
     page_icon="🎓", 
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
+
+# --- GLOBAL GLASSMORPHISM & MIDNIGHT CYBER CSS ---
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    
+    /* 1. Base Theme - Midnight Cyber */
+    .stApp {
+        background-color: #0E1117;
+        font-family: 'Inter', sans-serif;
+        color: #E2E8F0;
+    }
+    
+    /* 2. Glassmorphism for Containers, Forms, and Sidebars */
+    [data-testid="stSidebar"] {
+        background: rgba(14, 17, 23, 0.7) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+    }
+    
+    div[data-testid="stForm"], div.stChatFloatingInputContainer {
+        background: rgba(255, 255, 255, 0.03) !important;
+        backdrop-filter: blur(10px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 20px !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* 3. Hero Section - Animated Gradient */
+    .hero-container {
+        pointer-events: none;
+        background: linear-gradient(-45deg, #00D4FF, #0E1117, #800000, #0E1117);
+        background-size: 400% 400%;
+        animation: gradientBG 15s ease infinite;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    @keyframes gradientBG {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+    .hero-container h1 {
+        font-weight: 700;
+        color: #FFFFFF;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        margin: 0;
+    }
+    .hero-container p {
+        color: #00D4FF;
+        font-weight: 300;
+        letter-spacing: 1.5px;
+        margin-top: 5px;
+        font-size: 1.2rem;
+    }
+
+    /* 4. High-Glow Gradient Buttons */
+    div.stButton > button, div[data-testid="stFormSubmitButton"] > button {
+        background: linear-gradient(90deg, #800000 0%, #00D4FF 100%) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 600 !important;
+        letter-spacing: 1px !important;
+        border-radius: 8px !important;
+        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    div.stButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6) !important;
+    }
+
+    /* 5. Micro-Interactions (Fade-ins) */
+    .stAlert, .stChatMessage {
+        animation: fadeIn 0.8s ease-in;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Hide default Streamlit styling overrides */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
 # --- HELPER TO LOAD SECRETS SAFELY ---
 @st.cache_data
@@ -39,29 +133,6 @@ def load_secrets():
 secrets_dict = load_secrets()
 
 # --- FEATURE 1: ENTERPRISE SECURITY & BRANDING ---
-
-# Custom CSS for SIT Authentication Button (Maroon/Gold/Navy)
-st.markdown("""
-    <style>
-    /* Force style the primary Streamlit authentication Submit button */
-    div[data-testid="stFormSubmitButton"] > button {
-        background-color: #800000 !important; /* Maroon */
-        color: #FFD700 !important; /* Gold */
-        border: 2px solid #000080 !important; /* Navy */
-        font-weight: bold !important;
-        border-radius: 5px !important;
-    }
-    div[data-testid="stFormSubmitButton"] > button:hover {
-        background-color: #000080 !important; /* Navy */
-        color: #FFD700 !important; /* Gold */
-        border: 2px solid #800000 !important; /* Maroon */
-    }
-    
-    /* Global classes */
-    .vtu-header { color: #004d99; font-weight: bold; margin-bottom: 0px; }
-    .department-sub { color: #555555; margin-top: 5px; }
-    </style>
-""", unsafe_allow_html=True)
 
 if "credentials" not in secrets_dict or "cookie" not in secrets_dict:
     st.error("🚨 Authentication Configuration Missing!")
@@ -87,9 +158,12 @@ with col1:
     else:
         st.info("SIT Logo Missing (sit_logo.jpeg or png)")
 with col2:
-    st.markdown("<h1 class='vtu-header'>SIT Global Hub</h1>", unsafe_allow_html=True)
-    st.markdown("<h3 class='department-sub'>Department of Computer Science & Business Systems</h3>", unsafe_allow_html=True)
-    st.markdown("**Srinivas Institute of Technology (SIT) — Visvesvaraya Technological University (VTU)**")
+    st.markdown("""
+        <div class="hero-container">
+            <h1>SIT Global Hub</h1>
+            <p>Department of Computer Science & Business Systems</p>
+        </div>
+    """, unsafe_allow_html=True)
 
 st.divider()
 
@@ -101,7 +175,9 @@ if authentication_status is False:
 
 # --- PRE-AUTHENTICATION UI (Public View) ---
 if authentication_status is not True:
+    st.info("👋 Welcome to the SIT Global Hub. Please login using **Username:** `student` | **Password:** `SIT_Student_2026`")
     with st.sidebar:
+#        ...
         st.header("Public View")
         st.subheader("📅 2026 Academic Calendar")
         st.markdown(
@@ -144,56 +220,59 @@ if authentication_status is not True:
 st.sidebar.title(f"Welcome, {name} 🎓")
 authenticator.logout("Logout", "sidebar")
 
-# --- TABS CREATION ---
+# --- TABS CREATION (Material Icons) ---
 tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library = st.tabs([
-    "📊 MLOps Predictor", 
+    "🎯 AI Predictor", 
     "🔬 Ensemble Lab",
-    "🤖 Global AI Mentor",
-    "🧘 Zen Wellness", 
-    "♟️ Brain Games",
-    "📚 Digital Library"
+    "🤖 AI Mentor",
+    "🧘 Zen Zone", 
+    "🎮 Brain Games",
+    "📚 Global Library"
 ])
 
 # --- FEATURE 2: MLOps SUCCESS PREDICTOR ---
 with tab_ml:
-    st.header("MLOps Success Predictor")
+    st.header("🎯 MLOps Success Predictor")
     st.write("Predict academic outcomes using models configured via Hugging Face Hub.")
     
-    with st.form("ml_form"):
-        col_m1, col_m2 = st.columns(2)
-        with col_m1:
+    col_ml1, col_ml2 = st.columns([1, 1])
+    
+    with col_ml1:
+        with st.form("ml_form"):
+            st.subheader("Student Metrics Data")
             prev_grade = st.number_input("Previous Qualification Grade", min_value=0.0, max_value=200.0, value=130.0, step=1.0)
-        with col_m2:
             age = st.number_input("Age at Enrollment", min_value=15, max_value=60, value=18, step=1)
+            submitted = st.form_submit_button("Predict Outcome")
             
-        submitted = st.form_submit_button("Predict Outcome")
-        
-    if submitted:
-        with st.spinner("Loading model and predicting outcome..."):
-            try:
-                # Load the pre-trained model
-                if not os.path.exists("model.joblib"):
-                    raise FileNotFoundError("model.joblib not found in the root directory.")
-                
-                model = joblib.load("model.joblib")
-                
-                # Prepare input data for prediction
-                input_data = np.array([[prev_grade, age]])
-                
-                # Make prediction
-                prediction = model.predict(input_data)
-                prediction_text = str(prediction[0]).title()
-                
-                if prediction_text == "Graduate":
-                    st.success(f"Predictive Outcome: The student is strongly projected to **{prediction_text}**.")
-                elif prediction_text == "Dropout":
-                    st.error(f"Predictive Outcome: Alert - The student is flagged as a potential **{prediction_text}** risk.")
-                else:
-                    st.info(f"Predictive Outcome: The student status is **{prediction_text}**.")
+    with col_ml2:
+        st.subheader("Model Inference")
+        if submitted:
+            with st.spinner("Loading model and predicting outcome..."):
+                try:
+                    # Load the pre-trained model
+                    if not os.path.exists("model.joblib"):
+                        raise FileNotFoundError("model.joblib not found in the root directory.")
                     
-            except Exception as e:
-                st.error(f"Error loading model or making prediction: {str(e)}")
-                st.info("Please ensure that model.joblib is placed in the project root and is compatible with scikit-learn==1.6.1.")
+                    model = joblib.load("model.joblib")
+                    
+                    # Prepare input data for prediction
+                    input_data = np.array([[prev_grade, age]])
+                    
+                    # Make prediction
+                    prediction = model.predict(input_data)
+                    prediction_text = str(prediction[0]).title()
+                    
+                    if prediction_text == "Graduate":
+                        st.success(f"Predictive Outcome: The student is strongly projected to **{prediction_text}**.")
+                        st.balloons()
+                    elif prediction_text == "Dropout":
+                        st.error(f"Predictive Outcome: Alert - The student is flagged as a potential **{prediction_text}** risk.")
+                    else:
+                        st.info(f"Predictive Outcome: The student status is **{prediction_text}**.")
+                        
+                except Exception as e:
+                    st.error(f"Error loading model or making prediction: {str(e)}")
+                    st.info("Please ensure that model.joblib is placed in the project root and is compatible with scikit-learn==1.6.1.")
 
 # --- FEATURE 2.5: ADVANCED ENSEMBLE LAB ---
 with tab_ensemble:
@@ -439,41 +518,46 @@ with tab_games:
 
 # --- FEATURE 6: INTERNATIONAL DIGITAL LIBRARY ---
 with tab_library:
-    st.header("International Digital Library")
+    st.header("📚 Global Digital Library")
     st.write("Free search for textbooks, CS journals, and global resources via the Open Library API.")
     
-    search_query = st.text_input("Enter a subject (e.g., 'Reinforcement Learning', 'Germany Education', 'Data Structures')")
+    col_lib1, col_lib2 = st.columns([1, 2])
     
-    if st.button("Search Open Library"):
-        if search_query.strip() == "":
-            st.warning("Please enter a valid search term.")
-        else:
-            with st.spinner(f"Querying Open Library for '{search_query}'..."):
-                try:
-                    clean_query = search_query.replace(' ', '+')
-                    # Secure requests call with a timeout to prevent infinite blocking on Cloud
-                    response = requests.get(f"https://openlibrary.org/search.json?q={clean_query}&limit=6", timeout=12)
-                    
-                    if response.status_code == 200:
-                        data = response.json()
-                        docs = data.get("docs", [])
+    with col_lib1:
+        search_query = st.text_input("Enter a subject (e.g., 'Reinforcement Learning', 'Germany Education', 'Data Structures')")
+        search_btn = st.button("Search Open Library")
+        
+    with col_lib2:
+        if search_btn:
+            if search_query.strip() == "":
+                st.warning("Please enter a valid search term.")
+            else:
+                with st.spinner(f"Querying Open Library for '{search_query}'..."):
+                    try:
+                        clean_query = search_query.replace(' ', '+')
+                        # Secure requests call with a timeout to prevent infinite blocking on Cloud
+                        response = requests.get(f"https://openlibrary.org/search.json?q={clean_query}&limit=6", timeout=12)
                         
-                        if not docs:
-                            st.info("No matching books or journals found. Try broadening your terms.")
+                        if response.status_code == 200:
+                            data = response.json()
+                            docs = data.get("docs", [])
+                            
+                            if not docs:
+                                st.info("No matching books or journals found. Try broadening your terms.")
+                            else:
+                                st.success(f"Retrieved the top {len(docs)} highly relevant results!")
+                                for doc in docs:
+                                    title = doc.get("title", "Unknown Subject")
+                                    authors = ", ".join(doc.get("author_name", ["Unknown Editor"]))
+                                    year = doc.get("first_publish_year", "Unknown Year")
+                                    preview = doc.get("key", "")
+                                    
+                                    with st.container(border=True):
+                                        st.markdown(f"**📚 {title}** *(Published: {year})*")
+                                        st.markdown(f"**Authors:** {authors}")
+                                        if preview:
+                                            st.markdown(f"[Read Resource on Open Library](https://openlibrary.org{preview})")
                         else:
-                            st.success(f"Retrieved the top {len(docs)} highly relevant results!")
-                            for doc in docs:
-                                title = doc.get("title", "Unknown Subject")
-                                authors = ", ".join(doc.get("author_name", ["Unknown Editor"]))
-                                year = doc.get("first_publish_year", "Unknown Year")
-                                preview = doc.get("key", "")
-                                
-                                st.markdown(f"**📚 {title}** *(Published: {year})*")
-                                st.markdown(f"**Authors:** {authors}")
-                                if preview:
-                                    st.markdown(f"[Read Resource on Open Library](https://openlibrary.org{preview})")
-                                st.divider()
-                    else:
-                        st.error(f"API Interface Error: Open Library responded with Status Code {response.status_code}")
-                except Exception as e:
-                    st.error(f"Failed to connect to Open Library API: {str(e)}")
+                            st.error(f"API Interface Error: Open Library responded with Status Code {response.status_code}")
+                    except Exception as e:
+                        st.error(f"Failed to connect to Open Library API: {str(e)}")
