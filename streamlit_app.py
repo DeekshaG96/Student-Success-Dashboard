@@ -482,8 +482,8 @@ with tab_wellness:
     ambient_maps = {
         "Temple Bells": "https://www.youtube.com/watch?v=1zxDte52Fik",
         "Rain": "https://www.youtube.com/watch?v=mPZkdNFkNps",
-        "Deep Space": "https://www.youtube.com/watch?v=FjHGZj2IjA4",
-        "Ocean Waves": "https://www.youtube.com/watch?v=FqaAta-I_vI"
+        "Deep Space": "https://www.youtube.com/watch?v=1n0_51WioXY",
+        "Ocean Waves": "https://www.youtube.com/watch?v=bn9F19Hi1Lk"
     }
     
     selected_url = ambient_maps.get(sound_choice)
