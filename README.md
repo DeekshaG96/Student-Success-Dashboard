@@ -56,7 +56,7 @@ Create a `.streamlit` folder at the root directory and add a `secrets.toml` file
 ```toml
 # Template: .streamlit/secrets.toml
 HF_TOKEN = "your_hugging_face_token_here"
-REPO_ID = "GANCHU0909/Student-Success-Model"
+REPO_ID = "your_huggingface_username/your_model_repository"
 GEMINI_API_KEY = "your_google_gemini_api_key_here"
 
 [credentials]
