@@ -41,7 +41,7 @@ Launch the SIT Global Hub in your own development environment in 4 easy steps:
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/GANCHU0909/Student-Success-Dashboard.git
+git clone https://github.com/DeekshaG96/Student-Success-Dashboard.git
 cd Student-Success-Dashboard
 ```
 
