@@ -136,6 +136,8 @@ secrets_dict = load_secrets()
 if "credentials" not in secrets_dict or "cookie" not in secrets_dict:
     st.error("🚨 Authentication Configuration Missing!")
     st.info("Please ensure you have a properly formatted `.streamlit/secrets.toml` file in your repository root. It must contain the `[credentials]` and `[cookie]` blocks required by `streamlit-authenticator`.")
+    
+    st.warning(f"**Diagnostic Info:** Cloud Server currently sees these Secret Keys: `{list(secrets_dict.keys())}`. If this list is empty (`[]`), the Secrets box in the Cloud Settings is empty or failed to save. If you see keys like `'''toml`, remove the markdown backticks from the secrets box!")
     st.stop()
 
 # Initialize authenticator (30-day cookie configured in secrets)
