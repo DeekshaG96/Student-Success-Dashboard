@@ -478,8 +478,17 @@ with tab_wellness:
     st.divider()
     st.subheader("🎧 Ambient Sounds")
     sound_choice = st.selectbox("Select soundscape:", ["Temple Bells", "Rain", "Deep Space", "Ocean Waves"])
-    st.audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", format="audio/mp3")
-    st.caption(f"Currently playing placeholder track for '{sound_choice}'.")
+    
+    ambient_maps = {
+        "Temple Bells": "https://www.youtube.com/watch?v=1zxDte52Fik",
+        "Rain": "https://www.youtube.com/watch?v=mPZkdNFkNps",
+        "Deep Space": "https://www.youtube.com/watch?v=FjHGZj2IjA4",
+        "Ocean Waves": "https://www.youtube.com/watch?v=FqaAta-I_vI"
+    }
+    
+    selected_url = ambient_maps.get(sound_choice)
+    st.video(selected_url)
+    st.caption(f"Currently playing: {sound_choice} ambient immersion.")
 
 # --- FEATURE 5: BRAIN GAMES HUB ---
 with tab_games:
@@ -495,26 +504,10 @@ with tab_games:
         components.iframe("https://lichess.org/training/frame?theme=brown&bg=dark", height=450)
         
     elif "Sudoku" in game_choice:
-        st.subheader("Sudoku Logic Generator")
-        st.info("Future enhancement: Integrate a Python-based Sudoku generator payload here.")
-        # Visual placeholder displaying the concept cleanly
-        st.markdown("""
-        ```text
-        +-------+-------+-------+
-        | 5 3 4 | 6 7 8 | 9 1 2 |
-        | 6 7 2 | 1 9 5 | 3 4 8 |
-        | 1 9 8 | 3 4 2 | 5 6 7 |
-        +-------+-------+-------+
-        | 8 5 9 | 7 6 1 | 4 2 3 |
-        | 4 2 6 | 8 5 3 | 7 9 1 |
-        | 7 1 3 | 9 2 4 | 8 5 6 |
-        +-------+-------+-------+
-        | 9 6 1 | 5 3 7 | 2 8 4 |
-        | 2 8 7 | 4 1 9 | 6 3 5 |
-        | 3 4 5 | 2 8 6 | 1 7 9 |
-        +-------+-------+-------+
-        ```
-        """)
+        st.subheader("Interactive Sudoku Logic")
+        st.write("Challenge your working memory with a live WebSudoku instance.")
+        # Using a reliable web-sudoku portal embedded cleanly
+        components.iframe("https://websudoku.com/", height=550)
 
 # --- FEATURE 6: INTERNATIONAL DIGITAL LIBRARY ---
 with tab_library:
