@@ -1,17 +1,29 @@
 ﻿<div align="center">
-  <h1>🎓 SIT Global Student Success Hub</h1>
-  <p><b>An elite AI platform designed for CSBS students at Srinivas Institute of Technology</b></p>
+  <h1>🎓 SIT Global Success Hub</h1>
+  <p><b>An International MLOps & Wellness Portal for CSBS Students at Srinivas Institute of Technology</b></p>
   
   [![Live Demo](https://img.shields.io/badge/Live-Demo-blue?style=for-the-badge&logo=streamlit)](https://student-success-dashboard-cpnswmcahqbt6zwqkhwghy.streamlit.app/)
 </div>
 
 ---
 
-## 🚀 Mission Statement
+## 🎯 The 'Why': Our Mission
+The **SIT Global Success Hub** was engineered to solve the problem of academic fragmentation. Engineering students often juggle multiple platforms for study materials, career guidance, and wellness. This platform unifies predictive AI, generative mentorship, and cognitive wellness tools into one secure, seamless business system designed specifically for the rigorous demands of the CSBS curriculum at Srinivas Institute of Technology.
 
-The SIT Global Student Success Hub is a premier, full-stack intelligence portal tailored exclusively for the Computer Science & Business Systems (CSBS) department at Srinivas Institute of Technology. Built to empower our next generation of engineers, this platform merges predictive analytics, advanced AI mentorship, cognitive resources, and wellness tools into a single, highly secure, and beautifully designed Glassmorphism interface.
+---
 
-## 🛠️ Tech Stack & Automation
+## ✨ Key Features Ecosystem (The 'Big 6')
+
+* **🔒 Secure Auth**: Master-level authentication architecture implementing zero-leak secrets management with `bcrypt`-hashed login and secure session cookies.
+* **🔮 ML Outcome Predictor**: A live predictive intelligence engine utilizing a Random Forest Classifier (scikit-learn 1.6.1) to forecast student academic outcomes based on admission metrics.
+* **🤖 AI Global Mentor**: Real-time virtual counseling powered by Google Gemini 1.5 Pro, offering specialized advice on GATE 2027 preparation, international MS programs (USA, Germany, Ireland), and core CSBS concepts.
+* **🧘 Zen Zone**: A dedicated cognitive focus portal equipped with a customizable Pomodoro timer, live ambient audio streams designed for 'flow state', and interactive exam alarms.
+* **🧠 Cognitive Lab**: Embedded brain games including an interactive Chess interface (Lichess) and Sudoku logic puzzles to provide strategic mental breaks.
+* **📚 Digital Library**: Instantaneous global textbook and CS journal discovery powered entirely through real-time asynchronous calls to the Open Library API.
+
+---
+
+## 🛠️ Tech Stack & Architecture
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
@@ -21,20 +33,11 @@ The SIT Global Student Success Hub is a premier, full-stack intelligence portal 
   <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" />
 </p>
 
-## ✨ Key Features Ecosystem
+---
 
-* **🔒 Enterprise-Grade Secure Login**: Master-level authentication architecture implementing zero-leak secrets management with `bcrypt` password hashing.
-* **🎯 MLOps Success Predictor**: A predictive intelligence engine leveraging a meticulously trained scikit-learn model, pulled directly from a Hugging Face repository.
-* **🔬 Advanced Ensemble Lab**: Interactive model pipeline allowing students to experiment with Voting Classifiers, Bagging, and AdaBoost implementations live in the browser.
-* **🤖 Global AI Mentor**: An elite integration of Google's Gemini-2.5-flash Pro API acting as a virtual academic advisor for GATE 2027 preparation and International Higher Education pathways.
-* **📚 International Digital Library**: Direct asynchronous integration with the Open Library API to pull free CS journals, research papers, and global textbooks.
-* **🧘 Zen Study Zone**: Cognitive focus portal equipped with Pomodoro timers, interactive exam alarms, and 24/7 ad-free ambient live streams specifically for engineering flow states.
-* **🎮 Brain Games Hub**: High-concentration strategic logic games (Interactive Lichess and WebSudoku Logic) designed to keep the analytical mind razor-sharp.
-* **🌱 Student Life & Wellness**: A private, downloadable daily engineering journal accompanied by dynamically generated, contextually-aware VTU study hacks and motivation.
+## ⚙️ Local Setup Instructions
 
-## ⚙️ Local Setup & Installation
-
-Follow these steps to set up the SIT Global Hub securely in your local environment.
+Launch the SIT Global Hub in your own development environment in 4 easy steps:
 
 ### 1. Clone the Repository
 ```bash
@@ -43,15 +46,12 @@ cd Student-Success-Dashboard
 ```
 
 ### 2. Install Project Dependencies
-To guarantee compatibility, specifically with our predictive pipelines, install the pinned versions:
 ```bash
 pip install -r requirements.txt
 ```
 
-### 3. Configure the Secrets
-* Create a `.streamlit` folder at the root directory.
-* Create a `secrets.toml` file inside the `.streamlit` folder.
-* Use the following template, replacing the values with your actual API keys and credentials:
+### 3. Configure the Secrets (Critical)
+Create a `.streamlit` folder at the root directory and add a `secrets.toml` file inside it. Use the template below and replace the placeholder strings with your actual API keys and generated hashes:
 
 ```toml
 # Template: .streamlit/secrets.toml
@@ -75,13 +75,16 @@ expiry_days = 30
 streamlit run streamlit_app.py
 ```
 
-## 🛡️ Zero-Leak Security Architecture
+---
 
-**Cyber Security Awareness Notice:** This application strictly adheres to zero-trust compliance standards. 
-Absolutely **no secrets, API keys, or passwords** are hardcoded into the source codebase. 
-All sensitive variables—including Hugging Face tokens and Gemini keys—are strictly injected at runtime via Streamlit Community Cloud environment variables or the local `.streamlit/secrets.toml` file. The `.gitignore` prevents both `.env` and `secrets.toml` from ever being pushed to the public repository.
+## 🛡️ Secret Management & Security
+
+**Cyber Security Awareness Notice:** This project strictly enforces zero-trust compliance. 
+**No hardcoded credentials**, API keys, or passwords exist within the source code. All sensitive variables are securely injected at runtime via Streamlit Community Cloud environment variables or the local `.streamlit/secrets.toml` file. The `.gitignore` is strictly configured to exclude sensitive files like `.env` and `secrets.toml` from version control, preventing data leaks and demonstrating elite software engineering practices.
 
 ---
-<p align="center">
-  <i>"I would love to change the world, but they won't give me the source code."</i>
-</p>
+<div align="center">
+  <b>👨‍🎓 Author: Deeksha G</b> <br>
+  <i>Student, Computer Science & Business Systems</i> <br>
+  <i>Srinivas Institute of Technology, Mangaluru</i>
+</div>
