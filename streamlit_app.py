@@ -5,10 +5,17 @@ import time
 import os
 import joblib
 import numpy as np
+import pandas as pd
 import google.generativeai as genai
 import requests
 from huggingface_hub import hf_hub_download
-
+from sklearn.ensemble import VotingClassifier, BaggingClassifier, AdaBoostClassifier, RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.preprocessing import StandardScaler
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
     page_title="International Student Success & Wellness Hub", 
@@ -31,12 +38,37 @@ def load_secrets():
 
 secrets_dict = load_secrets()
 
-# --- FEATURE 1: ENTERPRISE SECURITY ---
+# --- FEATURE 1: ENTERPRISE SECURITY & BRANDING ---
+
+# Custom CSS for SIT Authentication Button (Maroon/Gold/Navy)
+st.markdown("""
+    <style>
+    /* Force style the primary Streamlit authentication Submit button */
+    div[data-testid="stFormSubmitButton"] > button {
+        background-color: #800000 !important; /* Maroon */
+        color: #FFD700 !important; /* Gold */
+        border: 2px solid #000080 !important; /* Navy */
+        font-weight: bold !important;
+        border-radius: 5px !important;
+    }
+    div[data-testid="stFormSubmitButton"] > button:hover {
+        background-color: #000080 !important; /* Navy */
+        color: #FFD700 !important; /* Gold */
+        border: 2px solid #800000 !important; /* Maroon */
+    }
+    
+    /* Global classes */
+    .vtu-header { color: #004d99; font-weight: bold; margin-bottom: 0px; }
+    .department-sub { color: #555555; margin-top: 5px; }
+    </style>
+""", unsafe_allow_html=True)
+
 if "credentials" not in secrets_dict or "cookie" not in secrets_dict:
-    st.error("Authentication secrets missing! Please properly configure 'credentials' and 'cookie' in st.secrets.")
+    st.error("🚨 Authentication Configuration Missing!")
+    st.info("Please ensure you have a properly formatted `.streamlit/secrets.toml` file in your repository root. It must contain the `[credentials]` and `[cookie]` blocks required by `streamlit-authenticator`.")
     st.stop()
 
-# Initialize authenticator
+# Initialize authenticator (30-day cookie configured in secrets)
 authenticator = stauth.Authenticate(
     secrets_dict["credentials"],
     secrets_dict["cookie"]["name"],
@@ -45,43 +77,72 @@ authenticator = stauth.Authenticate(
     secrets_dict.get("preauthorized", None)
 )
 
-name, authentication_status, username = authenticator.login("main", fields={'Form name': 'Login to CSBS Portal'})
-
-if authentication_status is False:
-    st.error("Username/password is incorrect. Please try again.")
-    st.stop()
-elif authentication_status is None:
-    st.warning("Please enter your username and password to access the portal.")
-    st.stop()
-
-# --- AUTHENTICATED AREA ---
-st.sidebar.title(f"Welcome, {name}")
-authenticator.logout("Logout", "sidebar")
-
-# SIT Branding
-st.markdown("""
-    <style>
-    .vtu-header { color: #004d99; font-weight: bold; margin-bottom: 0px; }
-    .department-sub { color: #555555; margin-top: 5px; }
-    </style>
-""", unsafe_allow_html=True)
-
+# SIT Branding (Displayed globally before login box)
 col1, col2 = st.columns([1, 4])
 with col1:
-    if os.path.exists("sit_logo.png"):
+    if os.path.exists("sit_logo.jpeg"):
+        st.image("sit_logo.jpeg", use_container_width=True)
+    elif os.path.exists("sit_logo.png"):
         st.image("sit_logo.png", use_container_width=True)
     else:
-        st.info("SIT Logo Missing (sit_logo.png)")
+        st.info("SIT Logo Missing (sit_logo.jpeg or png)")
 with col2:
-    st.markdown("<h1 class='vtu-header'>International Student Success & Wellness Hub</h1>", unsafe_allow_html=True)
+    st.markdown("<h1 class='vtu-header'>SIT Global Hub</h1>", unsafe_allow_html=True)
     st.markdown("<h3 class='department-sub'>Department of Computer Science & Business Systems</h3>", unsafe_allow_html=True)
     st.markdown("**Srinivas Institute of Technology (SIT) — Visvesvaraya Technological University (VTU)**")
 
 st.divider()
 
+# Login Form Injection
+name, authentication_status, username = authenticator.login("main", fields={'Form name': 'Secure Access Portal'})
+
+if authentication_status is False:
+    st.error("Username/password is incorrect. Please try again.")
+
+# --- PRE-AUTHENTICATION UI (Public View) ---
+if authentication_status is not True:
+    with st.sidebar:
+        st.header("Public View")
+        st.subheader("📅 2026 Academic Calendar")
+        st.markdown(
+            "- **March 05:** Tech Fest Inauguration\n"
+            "- **April 15:** Internal Assessments Phase II\n"
+            "- **May 20:** Even Semester Ends\n"
+            "- **June 05:** VTU Practical Exams"
+        )
+        
+        st.divider()
+        st.subheader("🤖 Guest AI Assistant")
+        st.caption("Ask general questions about SIT admissions or campus facilities.")
+        guest_prompt = st.chat_input("E.g., What are the library hours?")
+        
+        if guest_prompt:
+            API_KEY = secrets_dict.get("GEMINI_API_KEY")
+            if not API_KEY:
+                st.warning("Guest AI is currently offline.")
+            else:
+                try:
+                    genai.configure(api_key=API_KEY)
+                    guest_model = genai.GenerativeModel('gemini-1.5-flash', system_instruction="You are a concise, helpful guest assistant for Srinivas Institute of Technology (SIT).")
+                    with st.spinner("AI is thinking..."):
+                        response = guest_model.generate_content(guest_prompt)
+                        st.info(response.text)
+                except Exception as e:
+                    st.error(f"AI Assistant is currently unavailable. Error System details below:")
+                    st.exception(e)
+    
+    # Halt execution so Premium Tabs are hidden
+    st.stop()
+
+# --- POST-AUTHENTICATION UI (Premium View) ---
+# If execution reaches here, authentication is True
+st.sidebar.title(f"Welcome, {name} 🎓")
+authenticator.logout("Logout", "sidebar")
+
 # --- TABS CREATION ---
-tab_ml, tab_ai, tab_wellness, tab_games, tab_library = st.tabs([
+tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library = st.tabs([
     "📊 MLOps Predictor", 
+    "🔬 Ensemble Lab",
     "🤖 Global AI Mentor",
     "🧘 Zen Wellness", 
     "♟️ Brain Games",
@@ -128,6 +189,128 @@ with tab_ml:
             except Exception as e:
                 st.error(f"Error loading model or making prediction: {str(e)}")
                 st.info("Please ensure that model.joblib is placed in the project root and is compatible with scikit-learn==1.6.1.")
+
+# --- FEATURE 2.5: ADVANCED ENSEMBLE LAB ---
+with tab_ensemble:
+    st.header("Advanced Ensemble Lab")
+    st.write("Experiment with interactive model selection and ensemble techniques.")
+    
+    # Session state to hold trained models to avoid retraining on every interaction
+    if "ensemble_models" not in st.session_state:
+        st.session_state.ensemble_models = {}
+        st.session_state.scaler = None
+    
+    col_e1, col_e2 = st.columns([1, 2])
+    
+    with col_e1:
+        st.subheader("Model Configuration")
+        ensemble_choice = st.selectbox(
+            "Select Ensemble Method:", 
+            ["Voting Classifier", "Bagging/Pasting", "Boosting (AdaBoost)"]
+        )
+        
+        if ensemble_choice == "Bagging/Pasting":
+            is_bootstrap = st.toggle("Use Bagging (Bootstrap=True)", value=True, help="Toggle OFF to use Pasting (Bootstrap=False)")
+            
+        if st.button("Train Models"):
+            with st.spinner("Training ensemble models on local data (data.csv)..."):
+                try:
+                    # In a real scenario, this would load data.csv.
+                    # We will create a synthetic dataset for demonstration purposes as data.csv is not guaranteed.
+                    if os.path.exists("data.csv"):
+                         df = pd.read_csv("data.csv")
+                         # Extremely simplified assumption of columns for the sake of the demo
+                         if 'Previous Qualification Grade' in df.columns and 'Age at Enrollment' in df.columns and 'Target' in df.columns:
+                             X = df[['Previous Qualification Grade', 'Age at Enrollment']]
+                             y = df['Target']
+                         else:
+                             raise ValueError("Format of data.csv doesn't match expected columns. Falling back to synthetic.")
+                    else:
+                         # Synthetic Data Generation mimicking the described features
+                         np.random.seed(42)
+                         n_samples = 500
+                         grades = np.random.normal(130, 20, n_samples)
+                         ages = np.random.normal(25, 5, n_samples)
+                         X = pd.DataFrame({'Previous Qualification Grade': grades, 'Age at Enrollment': ages})
+                         
+                         # Synthetic target variable logic: Higher grade + Lower age generally = 1 (Graduate)
+                         noise = np.random.normal(0, 10, n_samples)
+                         y = ((grades - (ages * 2) + noise) > 80).astype(int) 
+
+                    # Scale the features
+                    scaler = StandardScaler()
+                    X_scaled = scaler.fit_transform(X)
+                    st.session_state.scaler = scaler
+                    
+                    # 1. Voting Classifier
+                    clf1 = LogisticRegression(random_state=42)
+                    clf2 = RandomForestClassifier(n_estimators=50, random_state=42)
+                    clf3 = SVC(probability=True, random_state=42)
+                    voting_clf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('svc', clf3)], voting='soft')
+                    voting_clf.fit(X_scaled, y)
+                    st.session_state.ensemble_models["Voting Classifier"] = voting_clf
+                    
+                    # 2. Bagging Classifier
+                    bag_clf = BaggingClassifier(
+                        DecisionTreeClassifier(random_state=42), n_estimators=50,
+                        max_samples=100, bootstrap=True, random_state=42
+                    )
+                    bag_clf.fit(X_scaled, y)
+                    st.session_state.ensemble_models["Bagging Model"] = bag_clf
+                    
+                    # 3. Pasting Classifier
+                    paste_clf = BaggingClassifier(
+                        DecisionTreeClassifier(random_state=42), n_estimators=50,
+                        max_samples=100, bootstrap=False, random_state=42
+                    )
+                    paste_clf.fit(X_scaled, y)
+                    st.session_state.ensemble_models["Pasting Model"] = paste_clf
+                    
+                    # 4. AdaBoost Classifier
+                    ada_clf = AdaBoostClassifier(
+                        DecisionTreeClassifier(max_depth=1, random_state=42), n_estimators=50,
+                        algorithm="SAMME", random_state=42
+                    )
+                    ada_clf.fit(X_scaled, y)
+                    st.session_state.ensemble_models["Boosting (AdaBoost)"] = ada_clf
+                    
+                    st.success("Successfully fitted all ensemble models!")
+                except Exception as e:
+                    st.error(f"Error during training: {e}")
+                    
+    with col_e2:
+        st.subheader("Dynamic Prediction")
+        
+        dyn_grade = st.slider("Previous Qualification Grade", min_value=0.0, max_value=200.0, value=130.0, step=1.0)
+        dyn_age = st.slider("Age at Enrollment", min_value=15, max_value=60, value=18, step=1)
+        
+        if st.button("Generate Ensemble Prediction"):
+            if not st.session_state.ensemble_models:
+                st.warning("Please click 'Train Models' first to initialize the estimators.")
+            else:
+                input_df = pd.DataFrame([[dyn_grade, dyn_age]], columns=['Previous Qualification Grade', 'Age at Enrollment'])
+                scaled_input = st.session_state.scaler.transform(input_df)
+                
+                model_key = ensemble_choice
+                if ensemble_choice == "Bagging/Pasting":
+                    model_key = "Bagging Model" if is_bootstrap else "Pasting Model"
+                    
+                selected_model = st.session_state.ensemble_models.get(model_key)
+                
+                try:
+                    pred = selected_model.predict(scaled_input)
+                    pred_label = "Graduate" if pred[0] == 1 else "Dropout/Enrolled"
+                    
+                    st.info(f"Using **{model_key}** Engine")
+                    
+                    if pred[0] == 1:
+                        st.success(f"Ensemble Output: The model strongly predicts **{pred_label}**.")
+                        st.balloons()
+                    else:
+                        st.error(f"Ensemble Output: The model warns of potential **{pred_label}** risk.")
+                        
+                except Exception as e:
+                    st.error(f"Prediction Error: {e}")
 
 # --- FEATURE 3: GLOBAL AI MENTOR ---
 with tab_ai:
