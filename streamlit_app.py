@@ -220,13 +220,14 @@ st.sidebar.title(f"Welcome, {name} 🎓")
 authenticator.logout("Logout", "sidebar")
 
 # --- TABS CREATION (Material Icons) ---
-tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library = st.tabs([
+tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library, tab_growth = st.tabs([
     "🎯 AI Predictor", 
     "🔬 Ensemble Lab",
     "🤖 AI Mentor",
     "🧘 Zen Zone", 
     "🎮 Brain Games",
-    "📚 Global Library"
+    "📚 Global Library",
+    "🌱 Daily Life & Growth"
 ])
 
 # --- FEATURE 2: MLOps SUCCESS PREDICTOR ---
@@ -530,6 +531,8 @@ with tab_library:
         if search_btn:
             if search_query.strip() == "":
                 st.warning("Please enter a valid search term.")
+            elif len(search_query.strip()) < 3:
+                st.warning("Your search query is too short. Open Library requires at least 3 characters (e.g., 'Data' instead of 'ds').")
             else:
                 with st.spinner(f"Querying Open Library for '{search_query}'..."):
                     try:
@@ -560,3 +563,80 @@ with tab_library:
                             st.error(f"API Interface Error: Open Library responded with Status Code {response.status_code}")
                     except Exception as e:
                         st.error(f"Failed to connect to Open Library API: {str(e)}")
+
+# --- FEATURE 7: DAILY LIFE & GROWTH ---
+with tab_growth:
+    st.markdown("""
+        <div style="background: linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(128,0,0,0.05) 100%); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
+            <h2 style="margin-top:0;">🌱 Student Life & Wellness</h2>
+            <p>Your sanctuary for motivation, humor, and mental clarity during the engineering grind.</p>
+        </div>
+        <br/>
+    """, unsafe_allow_html=True)
+
+    col_growth1, col_growth2 = st.columns([1, 1])
+
+    with col_growth1:
+        # 1. Daily Journaling
+        st.subheader("📝 Daily Engineering Journal")
+        if "journal_entry" not in st.session_state:
+            st.session_state["journal_entry"] = ""
+        
+        journal_text = st.text_area("Write down your thoughts, stress, or goals for today:", 
+                                    value=st.session_state["journal_entry"], height=200,
+                                    placeholder="E.g., Today I finally understood pointers in C...")
+        st.session_state["journal_entry"] = journal_text
+
+        if journal_text:
+            st.download_button(
+                label="📥 Download Journal",
+                data=journal_text,
+                file_name="journal_entry.txt",
+                mime="text/plain"
+            )
+
+        st.divider()
+
+        # 2. AI Motivation & Peace
+        st.subheader("✨ Need a Boost?")
+        if st.button("Generate AI Core Motivation"):
+            API_KEY = secrets_dict.get("GEMINI_API_KEY")
+            if not API_KEY:
+                st.warning("Google Gemini API is missing. Cannot generate quotes.")
+            else:
+                with st.spinner("Channeling peace..."):
+                    try:
+                        client = genai.Client(api_key=API_KEY)
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash',
+                            contents="Give me exactly one highly motivating, calming, and perspective-shifting quote tailored specifically for an Indian engineering student who is stressed about VTU exams or placements. Keep it under 3 sentences. Do not use quotes; speak directly to them.",
+                        )
+                        st.success(f"**Wisdom:** {response.text}")
+                    except Exception as e:
+                        st.error("Could not fetch motivation right now. Remember: You are stronger than your hardest exam!")
+                        st.exception(e)
+
+    with col_growth2:
+        # 3. Smart Study Tips (VTU Native)
+        st.subheader("🧠 Smart Study Hacks (VTU 2022/2026)")
+        st.info("**🍅 The Pomodoro Technique:** Work for 25 minutes, then take a 5-minute cognitive break. Perfect for grinding through thick textbooks like Automata Theory.")
+        st.success("**🧑‍🏫 The Feynman Technique:** Can you explain the concept to a 5-year-old? If not, you don't understand it yet. Use this for highly conceptual subjects like Data Structures & Algorithms.")
+        st.warning("**🔁 Active Recall Space Repetition:** Don't just re-read notes. actively quiz yourself. Use Anki flashcards for dense memorization in subjects like Software Engineering.")
+
+        st.divider()
+
+        # 4. The Engineer's Laugh
+        st.subheader("😂 The Engineer's Laugh")
+        jokes = [
+            "Why do programmers prefer dark mode? Because light attracts bugs.",
+            "There are 10 types of people in the world: those who understand binary, and those who don't.",
+            "A SQL query walks into a bar, approaches two tables and asks... 'Can I join you?'",
+            "Why did the programmer quit his job? Because he didn't get arrays.",
+            "How many programmers does it take to change a light bulb? None, that's a hardware problem.",
+            "Engineering Professor: 'You have 3 hours for this open-book VTU exam.'\n*Narrator: None of them found the answers in the book.*",
+            "I would love to change the world, but they won't give me the source code."
+        ]
+        import random
+        if st.button("Relieve Exam Stress (Joke)"):
+            st.info(f"_{random.choice(jokes)}_")
+
