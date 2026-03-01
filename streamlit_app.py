@@ -118,7 +118,6 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --- HELPER TO LOAD SECRETS SAFELY ---
-@st.cache_data
 def load_secrets():
     """Converts Streamlit secrets to a standard dictionary to prevent mutation errors."""
     def to_dict(secret_obj):
