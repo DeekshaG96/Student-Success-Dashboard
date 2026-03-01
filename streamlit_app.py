@@ -6,7 +6,7 @@ import os
 import joblib
 import numpy as np
 import pandas as pd
-import google.generativeai as genai
+from google import genai
 import requests
 from huggingface_hub import hf_hub_download
 from sklearn.ensemble import VotingClassifier, BaggingClassifier, AdaBoostClassifier, RandomForestClassifier
@@ -122,10 +122,15 @@ if authentication_status is not True:
                 st.warning("Guest AI is currently offline.")
             else:
                 try:
-                    genai.configure(api_key=API_KEY)
-                    guest_model = genai.GenerativeModel('gemini-1.5-flash', system_instruction="You are a concise, helpful guest assistant for Srinivas Institute of Technology (SIT).")
+                    client = genai.Client(api_key=API_KEY)
                     with st.spinner("AI is thinking..."):
-                        response = guest_model.generate_content(guest_prompt)
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash',
+                            contents=guest_prompt,
+                            config=genai.types.GenerateContentConfig(
+                                system_instruction="You are a concise, helpful guest assistant for Srinivas Institute of Technology (SIT)."
+                            )
+                        )
                         st.info(response.text)
                 except Exception as e:
                     st.error(f"AI Assistant is currently unavailable. Error System details below:")
@@ -322,7 +327,7 @@ with tab_ai:
         st.error("GEMINI_API_KEY missing from st.secrets. Mentor is offline.")
     else:
         try:
-            genai.configure(api_key=API_KEY)
+            client = genai.Client(api_key=API_KEY)
             
             # System instructions representing the specialized AI Mentor persona
             sys_instruct = (
@@ -333,7 +338,6 @@ with tab_ai:
                 "3. Advanced CSBS subjects like Reinforcement Learning, MLOps, and Deep Learning."
             )
             
-            model = genai.GenerativeModel('gemini-1.5-flash', system_instruction=sys_instruct)
             
             if "ai_messages" not in st.session_state:
                 st.session_state.ai_messages = []
@@ -350,7 +354,13 @@ with tab_ai:
                     
                 with st.chat_message("assistant"):
                     with st.spinner("Mentor is analyzing request..."):
-                        response = model.generate_content(prompt)
+                        response = client.models.generate_content(
+                            model='gemini-2.5-flash',
+                            contents=prompt,
+                            config=genai.types.GenerateContentConfig(
+                                system_instruction=sys_instruct
+                            )
+                        )
                         st.markdown(response.text)
                 st.session_state.ai_messages.append({"role": "assistant", "content": response.text})
                 
