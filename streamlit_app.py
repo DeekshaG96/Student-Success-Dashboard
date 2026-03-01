@@ -14,110 +14,113 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler
-# --- PAGE CONFIGURATION ---
-st.set_page_config(
-    page_title="SIT Global Success Hub", 
-    page_icon="🎓", 
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+import random
 
-# --- GLOBAL GLASSMORPHISM & MIDNIGHT CYBER CSS ---
-st.markdown("""
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-    
-    /* 1. Base Theme - Midnight Cyber */
-    .stApp {
-        background-color: #0E1117;
-        font-family: 'Inter', sans-serif;
-        color: #E2E8F0;
-    }
-    
-    /* 2. Glassmorphism for Containers, Forms, and Sidebars */
-    [data-testid="stSidebar"] {
-        background: rgba(14, 17, 23, 0.7) !important;
-        backdrop-filter: blur(12px) !important;
-        -webkit-backdrop-filter: blur(12px) !important;
-        border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
-    }
-    
-    div[data-testid="stForm"], div.stChatFloatingInputContainer {
-        background: rgba(255, 255, 255, 0.03) !important;
-        backdrop-filter: blur(10px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 12px !important;
-        padding: 20px !important;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
-    }
+# --- 1. PAGE CONFIGURATION & CSS ---
+def setup_page():
+    st.set_page_config(
+        page_title="SIT Global Success Hub", 
+        page_icon="🎓", 
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
 
-    /* 3. Hero Section - Animated Gradient */
-    .hero-container {
-        pointer-events: none;
-        background: linear-gradient(-45deg, #00D4FF, #0E1117, #800000, #0E1117);
-        background-size: 400% 400%;
-        animation: gradientBG 15s ease infinite;
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        margin-bottom: 30px;
-        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    @keyframes gradientBG {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-    .hero-container h1 {
-        font-weight: 700;
-        color: #FFFFFF;
-        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        margin: 0;
-    }
-    .hero-container p {
-        color: #00D4FF;
-        font-weight: 300;
-        letter-spacing: 1.5px;
-        margin-top: 5px;
-        font-size: 1.2rem;
-    }
+    # --- GLOBAL GLASSMORPHISM & MIDNIGHT CYBER CSS ---
+    st.markdown("""
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        /* 1. Base Theme - Midnight Cyber */
+        .stApp {
+            background-color: #0E1117;
+            font-family: 'Inter', sans-serif;
+            color: #E2E8F0;
+        }
+        
+        /* 2. Glassmorphism for Containers, Forms, and Sidebars */
+        [data-testid="stSidebar"] {
+            background: rgba(14, 17, 23, 0.7) !important;
+            backdrop-filter: blur(12px) !important;
+            -webkit-backdrop-filter: blur(12px) !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        
+        div[data-testid="stForm"], div.stChatFloatingInputContainer {
+            background: rgba(255, 255, 255, 0.03) !important;
+            backdrop-filter: blur(10px) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            border-radius: 12px !important;
+            padding: 20px !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+        }
 
-    /* 4. High-Glow Gradient Buttons */
-    div.stButton > button, div[data-testid="stFormSubmitButton"] > button {
-        background: linear-gradient(90deg, #800000 0%, #00D4FF 100%) !important;
-        color: #FFFFFF !important;
-        border: none !important;
-        font-family: 'Inter', sans-serif !important;
-        font-weight: 600 !important;
-        letter-spacing: 1px !important;
-        border-radius: 8px !important;
-        box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3) !important;
-        transition: all 0.3s ease !important;
-    }
-    div.stButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6) !important;
-    }
+        /* 3. Hero Section - Animated Gradient */
+        .hero-container {
+            pointer-events: none;
+            background: linear-gradient(-45deg, #00D4FF, #0E1117, #800000, #0E1117);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .hero-container h1 {
+            font-weight: 700;
+            color: #FFFFFF;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+        .hero-container p {
+            color: #00D4FF;
+            font-weight: 300;
+            letter-spacing: 1.5px;
+            margin-top: 5px;
+            font-size: 1.2rem;
+        }
 
-    /* 5. Micro-Interactions (Fade-ins) */
-    .stAlert, .stChatMessage {
-        animation: fadeIn 0.8s ease-in;
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
+        /* 4. High-Glow Gradient Buttons */
+        div.stButton > button, div[data-testid="stFormSubmitButton"] > button {
+            background: linear-gradient(90deg, #800000 0%, #00D4FF 100%) !important;
+            color: #FFFFFF !important;
+            border: none !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 600 !important;
+            letter-spacing: 1px !important;
+            border-radius: 8px !important;
+            box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        div.stButton > button:hover, div[data-testid="stFormSubmitButton"] > button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6) !important;
+        }
 
-    /* Hide default Streamlit styling overrides */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    </style>
-""", unsafe_allow_html=True)
+        /* 5. Micro-Interactions (Fade-ins) */
+        .stAlert, .stChatMessage {
+            animation: fadeIn 0.8s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-# --- HELPER TO LOAD SECRETS SAFELY ---
+        /* Hide default Streamlit styling overrides */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        </style>
+    """, unsafe_allow_html=True)
+
+
+# --- 2. AUTHENTICATION MODULE ---
 def load_secrets():
     """Converts Streamlit secrets to a standard dictionary to prevent mutation errors."""
     def to_dict(secret_obj):
@@ -129,56 +132,51 @@ def load_secrets():
             return secret_obj
     return to_dict(dict(st.secrets))
 
-secrets_dict = load_secrets()
+def render_login_system(secrets_dict):
+    """Handles the SIT Branded Login and Authentication via streamlit-authenticator."""
+    if "credentials" not in secrets_dict or "cookie" not in secrets_dict:
+        st.error("🚨 Authentication Configuration Missing!")
+        st.info("Please ensure you have a properly formatted `.streamlit/secrets.toml` file in your repository root. It must contain the `[credentials]` and `[cookie]` blocks required by `streamlit-authenticator`.")
+        st.warning(f"**Diagnostic Info:** Cloud Server currently sees these Secret Keys: `{list(secrets_dict.keys())}`. If this list is empty (`[]`), the Secrets box in the Cloud Settings is empty or failed to save. If you see keys like `'''toml`, remove the markdown backticks from the secrets box!")
+        st.stop()
 
-# --- FEATURE 1: ENTERPRISE SECURITY & BRANDING ---
+    authenticator = stauth.Authenticate(
+        secrets_dict["credentials"],
+        secrets_dict["cookie"]["name"],
+        secrets_dict["cookie"]["key"],
+        secrets_dict["cookie"].get("expiry_days", 30),
+        secrets_dict.get("preauthorized", None)
+    )
 
-if "credentials" not in secrets_dict or "cookie" not in secrets_dict:
-    st.error("🚨 Authentication Configuration Missing!")
-    st.info("Please ensure you have a properly formatted `.streamlit/secrets.toml` file in your repository root. It must contain the `[credentials]` and `[cookie]` blocks required by `streamlit-authenticator`.")
+    # SIT Branding
+    col1, col2 = st.columns([1, 4])
+    with col1:
+        if os.path.exists("sit_logo.jpeg"):
+            st.image("sit_logo.jpeg", use_container_width=True)
+        elif os.path.exists("sit_logo.png"):
+            st.image("sit_logo.png", use_container_width=True)
+        else:
+            st.info("SIT Logo Missing (sit_logo.jpeg or png)")
+    with col2:
+        st.markdown("""
+            <div class="hero-container">
+                <h1>SIT Global Hub</h1>
+                <p>Department of Computer Science & Business Systems</p>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    name, authentication_status, username = authenticator.login("main", fields={'Form name': 'Secure Access Portal'})
     
-    st.warning(f"**Diagnostic Info:** Cloud Server currently sees these Secret Keys: `{list(secrets_dict.keys())}`. If this list is empty (`[]`), the Secrets box in the Cloud Settings is empty or failed to save. If you see keys like `'''toml`, remove the markdown backticks from the secrets box!")
-    st.stop()
+    return authenticator, name, authentication_status
 
-# Initialize authenticator (30-day cookie configured in secrets)
-authenticator = stauth.Authenticate(
-    secrets_dict["credentials"],
-    secrets_dict["cookie"]["name"],
-    secrets_dict["cookie"]["key"],
-    secrets_dict["cookie"].get("expiry_days", 30),
-    secrets_dict.get("preauthorized", None)
-)
 
-# SIT Branding (Displayed globally before login box)
-col1, col2 = st.columns([1, 4])
-with col1:
-    if os.path.exists("sit_logo.jpeg"):
-        st.image("sit_logo.jpeg", use_container_width=True)
-    elif os.path.exists("sit_logo.png"):
-        st.image("sit_logo.png", use_container_width=True)
-    else:
-        st.info("SIT Logo Missing (sit_logo.jpeg or png)")
-with col2:
-    st.markdown("""
-        <div class="hero-container">
-            <h1>SIT Global Hub</h1>
-            <p>Department of Computer Science & Business Systems</p>
-        </div>
-    """, unsafe_allow_html=True)
-
-st.divider()
-
-# Login Form Injection
-name, authentication_status, username = authenticator.login("main", fields={'Form name': 'Secure Access Portal'})
-
-if authentication_status is False:
-    st.error("Username/password is incorrect. Please try again.")
-
-# --- PRE-AUTHENTICATION UI (Public View) ---
-if authentication_status is not True:
+# --- 3. PUBLIC GUEST VIEW ---
+def render_public_view(secrets_dict):
+    """Renders the Sidebar UI for unauthenticated users."""
     st.info("👋 Welcome to the SIT Global Hub. Please login using **Username:** `student` | **Password:** `SIT_Student_2026`")
     with st.sidebar:
-#        ...
         st.header("Public View")
         st.subheader("📅 2026 Academic Calendar")
         st.markdown(
@@ -187,12 +185,10 @@ if authentication_status is not True:
             "- **May 20:** Even Semester Ends\n"
             "- **June 05:** VTU Practical Exams"
         )
-        
         st.divider()
         st.subheader("🤖 Guest AI Assistant")
         st.caption("Ask general questions about SIT admissions or campus facilities.")
         guest_prompt = st.chat_input("E.g., What are the library hours?")
-        
         if guest_prompt:
             API_KEY = secrets_dict.get("GEMINI_API_KEY")
             if not API_KEY:
@@ -212,28 +208,11 @@ if authentication_status is not True:
                 except Exception as e:
                     st.error(f"AI Assistant is currently unavailable. Error System details below:")
                     st.exception(e)
-    
-    # Halt execution so Premium Tabs are hidden
-    st.stop()
 
-# --- POST-AUTHENTICATION UI (Premium View) ---
-# If execution reaches here, authentication is True
-st.sidebar.title(f"Welcome, {name} 🎓")
-authenticator.logout("Logout", "sidebar")
 
-# --- TABS CREATION (Material Icons) ---
-tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library, tab_growth = st.tabs([
-    "🎯 AI Predictor", 
-    "🔬 Ensemble Lab",
-    "🤖 AI Mentor",
-    "🧘 Zen Zone", 
-    "🎮 Brain Games",
-    "📚 Global Library",
-    "🌱 Daily Life & Growth"
-])
-
-# --- FEATURE 2: MLOps SUCCESS PREDICTOR ---
-with tab_ml:
+# --- 4. SUCCESS PREDICTOR MODULE ---
+def render_ml_predictor():
+    """Renders the MLOps Success Predictor Tab."""
     st.header("🎯 MLOps Success Predictor")
     st.write("Predict academic outcomes using models configured via Hugging Face Hub.")
     
@@ -251,16 +230,11 @@ with tab_ml:
         if submitted:
             with st.spinner("Loading model and predicting outcome..."):
                 try:
-                    # Load the pre-trained model
                     if not os.path.exists("model.joblib"):
                         raise FileNotFoundError("model.joblib not found in the root directory.")
                     
                     model = joblib.load("model.joblib")
-                    
-                    # Prepare input data for prediction
                     input_data = np.array([[prev_grade, age]])
-                    
-                    # Make prediction
                     prediction = model.predict(input_data)
                     prediction_text = str(prediction[0]).title()
                     
@@ -276,12 +250,13 @@ with tab_ml:
                     st.error(f"Error loading model or making prediction: {str(e)}")
                     st.info("Please ensure that model.joblib is placed in the project root and is compatible with scikit-learn==1.6.1.")
 
-# --- FEATURE 2.5: ADVANCED ENSEMBLE LAB ---
-with tab_ensemble:
+
+# --- 5. ENSEMBLE LAB MODULE ---
+def render_ensemble_lab():
+    """Renders the Advanced Ensemble Lab Tab."""
     st.header("Advanced Ensemble Lab")
     st.write("Experiment with interactive model selection and ensemble techniques.")
     
-    # Session state to hold trained models to avoid retraining on every interaction
     if "ensemble_models" not in st.session_state:
         st.session_state.ensemble_models = {}
         st.session_state.scaler = None
@@ -290,73 +265,51 @@ with tab_ensemble:
     
     with col_e1:
         st.subheader("Model Configuration")
-        ensemble_choice = st.selectbox(
-            "Select Ensemble Method:", 
-            ["Voting Classifier", "Bagging/Pasting", "Boosting (AdaBoost)"]
-        )
-        
+        ensemble_choice = st.selectbox("Select Ensemble Method:", ["Voting Classifier", "Bagging/Pasting", "Boosting (AdaBoost)"])
         if ensemble_choice == "Bagging/Pasting":
-            is_bootstrap = st.toggle("Use Bagging (Bootstrap=True)", value=True, help="Toggle OFF to use Pasting (Bootstrap=False)")
+            is_bootstrap = st.toggle("Use Bagging (Bootstrap=True)", value=True, help="Toggle OFF to use Pasting")
             
         if st.button("Train Models"):
-            with st.spinner("Training ensemble models on local data (data.csv)..."):
+            with st.spinner("Training ensemble models..."):
                 try:
-                    # In a real scenario, this would load data.csv.
-                    # We will create a synthetic dataset for demonstration purposes as data.csv is not guaranteed.
                     if os.path.exists("data.csv"):
                          df = pd.read_csv("data.csv")
-                         # Extremely simplified assumption of columns for the sake of the demo
                          if 'Previous Qualification Grade' in df.columns and 'Age at Enrollment' in df.columns and 'Target' in df.columns:
                              X = df[['Previous Qualification Grade', 'Age at Enrollment']]
                              y = df['Target']
                          else:
                              raise ValueError("Format of data.csv doesn't match expected columns. Falling back to synthetic.")
                     else:
-                         # Synthetic Data Generation mimicking the described features
                          np.random.seed(42)
                          n_samples = 500
                          grades = np.random.normal(130, 20, n_samples)
                          ages = np.random.normal(25, 5, n_samples)
                          X = pd.DataFrame({'Previous Qualification Grade': grades, 'Age at Enrollment': ages})
-                         
-                         # Synthetic target variable logic: Higher grade + Lower age generally = 1 (Graduate)
                          noise = np.random.normal(0, 10, n_samples)
                          y = ((grades - (ages * 2) + noise) > 80).astype(int) 
 
-                    # Scale the features
                     scaler = StandardScaler()
                     X_scaled = scaler.fit_transform(X)
                     st.session_state.scaler = scaler
                     
-                    # 1. Voting Classifier
+                    # Training Algorithms
                     clf1 = LogisticRegression(random_state=42)
                     clf2 = RandomForestClassifier(n_estimators=50, random_state=42)
                     clf3 = SVC(probability=True, random_state=42)
+                    
                     voting_clf = VotingClassifier(estimators=[('lr', clf1), ('rf', clf2), ('svc', clf3)], voting='soft')
                     voting_clf.fit(X_scaled, y)
                     st.session_state.ensemble_models["Voting Classifier"] = voting_clf
                     
-                    # 2. Bagging Classifier
-                    bag_clf = BaggingClassifier(
-                        DecisionTreeClassifier(random_state=42), n_estimators=50,
-                        max_samples=100, bootstrap=True, random_state=42
-                    )
+                    bag_clf = BaggingClassifier(DecisionTreeClassifier(random_state=42), n_estimators=50, max_samples=100, bootstrap=True, random_state=42)
                     bag_clf.fit(X_scaled, y)
                     st.session_state.ensemble_models["Bagging Model"] = bag_clf
                     
-                    # 3. Pasting Classifier
-                    paste_clf = BaggingClassifier(
-                        DecisionTreeClassifier(random_state=42), n_estimators=50,
-                        max_samples=100, bootstrap=False, random_state=42
-                    )
+                    paste_clf = BaggingClassifier(DecisionTreeClassifier(random_state=42), n_estimators=50, max_samples=100, bootstrap=False, random_state=42)
                     paste_clf.fit(X_scaled, y)
                     st.session_state.ensemble_models["Pasting Model"] = paste_clf
                     
-                    # 4. AdaBoost Classifier
-                    ada_clf = AdaBoostClassifier(
-                        DecisionTreeClassifier(max_depth=1, random_state=42), n_estimators=50,
-                        algorithm="SAMME", random_state=42
-                    )
+                    ada_clf = AdaBoostClassifier(DecisionTreeClassifier(max_depth=1, random_state=42), n_estimators=50, algorithm="SAMME", random_state=42)
                     ada_clf.fit(X_scaled, y)
                     st.session_state.ensemble_models["Boosting (AdaBoost)"] = ada_clf
                     
@@ -366,7 +319,6 @@ with tab_ensemble:
                     
     with col_e2:
         st.subheader("Dynamic Prediction")
-        
         dyn_grade = st.slider("Previous Qualification Grade", min_value=0.0, max_value=200.0, value=130.0, step=1.0)
         dyn_age = st.slider("Age at Enrollment", min_value=15, max_value=60, value=18, step=1)
         
@@ -386,7 +338,6 @@ with tab_ensemble:
                 try:
                     pred = selected_model.predict(scaled_input)
                     pred_label = "Graduate" if pred[0] == 1 else "Dropout/Enrolled"
-                    
                     st.info(f"Using **{model_key}** Engine")
                     
                     if pred[0] == 1:
@@ -394,12 +345,13 @@ with tab_ensemble:
                         st.balloons()
                     else:
                         st.error(f"Ensemble Output: The model warns of potential **{pred_label}** risk.")
-                        
                 except Exception as e:
                     st.error(f"Prediction Error: {e}")
 
-# --- FEATURE 3: GLOBAL AI MENTOR ---
-with tab_ai:
+
+# --- 6. AI MENTOR MODULE ---
+def render_ai_mentor(secrets_dict):
+    """Renders the Gemini Pro AI Mentor Tab."""
     st.header("Global AI Mentor")
     st.write("Consult the Gemini Pro expert on GATE 2027, International Higher Ed, and Advanced CSBS Subjects.")
     
@@ -409,8 +361,6 @@ with tab_ai:
     else:
         try:
             client = genai.Client(api_key=API_KEY)
-            
-            # System instructions representing the specialized AI Mentor persona
             sys_instruct = (
                 "You are an elite Principal Global AI Mentor for CSBS students at Srinivas Institute of Technology. "
                 "Act as an absolute expert on: "
@@ -418,7 +368,6 @@ with tab_ai:
                 "2. International higher education pathways (specifically USA, Germany, Ireland). "
                 "3. Advanced CSBS subjects like Reinforcement Learning, MLOps, and Deep Learning."
             )
-            
             
             if "ai_messages" not in st.session_state:
                 st.session_state.ai_messages = []
@@ -438,9 +387,7 @@ with tab_ai:
                         response = client.models.generate_content(
                             model='gemini-2.5-flash',
                             contents=prompt,
-                            config=genai.types.GenerateContentConfig(
-                                system_instruction=sys_instruct
-                            )
+                            config=genai.types.GenerateContentConfig(system_instruction=sys_instruct)
                         )
                         st.markdown(response.text)
                 st.session_state.ai_messages.append({"role": "assistant", "content": response.text})
@@ -448,8 +395,10 @@ with tab_ai:
         except Exception as e:
             st.error(f"Error communicating with Gemini API: {str(e)}")
 
-# --- FEATURE 4: ZEN WELLNESS & ALARM ---
-with tab_wellness:
+
+# --- 7. WELLNESS & ZEN MODULE ---
+def render_wellness_zen():
+    """Renders the Zen Wellness & Focus Radio Tab."""
     st.header("Zen Wellness & Alarm")
     st.write("Enhance focus using the Pomodoro meditation timer and interactive exam alarms.")
     
@@ -498,34 +447,36 @@ with tab_wellness:
     st.audio(selected_url, format="audio/mp3")
     st.caption(f"Currently streaming: {sound_choice} via SomaFM (No YouTube Blocking Issues).")
 
-# --- FEATURE 5: BRAIN GAMES HUB ---
-with tab_games:
+
+# --- 8. BRAIN GAMES MODULE ---
+def render_brain_games():
+    """Renders the Cognitive Brain Games Tab."""
     st.header("Brain Games Hub")
     st.write("Take a cognitive break to sharpen your mind with logic games.")
     
-    game_choice = st.radio("Choose a game strategy:", ["♟️ Chess (Interactive Window)", "🧩 Sudoku Generator (Placeholder)"], horizontal=True)
+    game_choice = st.radio("Choose a game strategy:", ["♟️ Chess (Interactive Window)", "🧩 Sudoku Logic Generator"], horizontal=True)
     
     if "Chess" in game_choice:
         st.subheader("Interactive Chess")
         st.write("Train against the computer using a lightweight iframe instance.")
-        # Using a sleek Lichess embedded iframe designed for interactive play without heavy local libraries
         components.iframe("https://lichess.org/training/frame?theme=brown&bg=dark", height=450)
         
     elif "Sudoku" in game_choice:
         st.subheader("Interactive Sudoku Logic")
         st.write("Challenge your working memory with a live WebSudoku instance.")
-        # Using a reliable web-sudoku portal embedded cleanly
         components.iframe("https://websudoku.com/", height=550)
 
-# --- FEATURE 6: INTERNATIONAL DIGITAL LIBRARY ---
-with tab_library:
+
+# --- 9. GLOBAL LIBRARY MODULE ---
+def render_global_library():
+    """Renders the Open Library API Search Tab."""
     st.header("📚 Global Digital Library")
     st.write("Free search for textbooks, CS journals, and global resources via the Open Library API.")
     
     col_lib1, col_lib2 = st.columns([1, 2])
     
     with col_lib1:
-        search_query = st.text_input("Enter a subject (e.g., 'Reinforcement Learning', 'Germany Education', 'Data Structures')")
+        search_query = st.text_input("Enter a subject (e.g., 'Reinforcement Learning', 'Germany')")
         search_btn = st.button("Search Open Library")
         
     with col_lib2:
@@ -533,12 +484,11 @@ with tab_library:
             if search_query.strip() == "":
                 st.warning("Please enter a valid search term.")
             elif len(search_query.strip()) < 3:
-                st.warning("Your search query is too short. Open Library requires at least 3 characters (e.g., 'Data' instead of 'ds').")
+                st.warning("Your search query is too short (minimum 3 characters).")
             else:
                 with st.spinner(f"Querying Open Library for '{search_query}'..."):
                     try:
                         clean_query = search_query.replace(' ', '+')
-                        # Secure requests call with a timeout to prevent infinite blocking on Cloud
                         response = requests.get(f"https://openlibrary.org/search.json?q={clean_query}&limit=6", timeout=12)
                         
                         if response.status_code == 200:
@@ -546,7 +496,7 @@ with tab_library:
                             docs = data.get("docs", [])
                             
                             if not docs:
-                                st.info("No matching books or journals found. Try broadening your terms.")
+                                st.info("No matching books found. Try broadening your terms.")
                             else:
                                 st.success(f"Retrieved the top {len(docs)} highly relevant results!")
                                 for doc in docs:
@@ -561,12 +511,14 @@ with tab_library:
                                         if preview:
                                             st.markdown(f"[Read Resource on Open Library](https://openlibrary.org{preview})")
                         else:
-                            st.error(f"API Interface Error: Open Library responded with Status Code {response.status_code}")
+                            st.error(f"Open Library API responsed with Status Code {response.status_code}")
                     except Exception as e:
                         st.error(f"Failed to connect to Open Library API: {str(e)}")
 
-# --- FEATURE 7: DAILY LIFE & GROWTH ---
-with tab_growth:
+
+# --- 10. DAILY LIFE & GROWTH MODULE ---
+def render_daily_growth(secrets_dict):
+    """Renders the Student Life, Wellbeing, and Study Tips Tab."""
     st.markdown("""
         <div style="background: linear-gradient(135deg, rgba(0,212,255,0.05) 0%, rgba(128,0,0,0.05) 100%); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);">
             <h2 style="margin-top:0;">🌱 Student Life & Wellness</h2>
@@ -578,7 +530,6 @@ with tab_growth:
     col_growth1, col_growth2 = st.columns([1, 1])
 
     with col_growth1:
-        # 1. Daily Journaling
         st.subheader("📝 Daily Engineering Journal")
         if "journal_entry" not in st.session_state:
             st.session_state["journal_entry"] = ""
@@ -589,16 +540,10 @@ with tab_growth:
         st.session_state["journal_entry"] = journal_text
 
         if journal_text:
-            st.download_button(
-                label="📥 Download Journal",
-                data=journal_text,
-                file_name="journal_entry.txt",
-                mime="text/plain"
-            )
+            st.download_button("📥 Download Journal", data=journal_text, file_name="journal_entry.txt", mime="text/plain")
 
         st.divider()
 
-        # 2. AI Motivation & Peace
         st.subheader("✨ Need a Boost?")
         if st.button("Generate AI Core Motivation"):
             API_KEY = secrets_dict.get("GEMINI_API_KEY")
@@ -615,18 +560,15 @@ with tab_growth:
                         st.success(f"**Wisdom:** {response.text}")
                     except Exception as e:
                         st.error("Could not fetch motivation right now. Remember: You are stronger than your hardest exam!")
-                        st.exception(e)
 
     with col_growth2:
-        # 3. Smart Study Tips (VTU Native)
         st.subheader("🧠 Smart Study Hacks (VTU 2022/2026)")
-        st.info("**🍅 The Pomodoro Technique:** Work for 25 minutes, then take a 5-minute cognitive break. Perfect for grinding through thick textbooks like Automata Theory.")
-        st.success("**🧑‍🏫 The Feynman Technique:** Can you explain the concept to a 5-year-old? If not, you don't understand it yet. Use this for highly conceptual subjects like Data Structures & Algorithms.")
-        st.warning("**🔁 Active Recall Space Repetition:** Don't just re-read notes. actively quiz yourself. Use Anki flashcards for dense memorization in subjects like Software Engineering.")
+        st.info("**🍅 The Pomodoro Technique:** Work for 25 minutes, then take a 5-minute break.")
+        st.success("**🧑‍🏫 The Feynman Technique:** Explain the concept to a 5-year-old. Best for DSA.")
+        st.warning("**🔁 Active Recall Space Repetition:** Actively quiz yourself using Anki flashcards.")
 
         st.divider()
 
-        # 4. The Engineer's Laugh
         st.subheader("😂 The Engineer's Laugh")
         jokes = [
             "Why do programmers prefer dark mode? Because light attracts bugs.",
@@ -637,7 +579,48 @@ with tab_growth:
             "Engineering Professor: 'You have 3 hours for this open-book VTU exam.'\n*Narrator: None of them found the answers in the book.*",
             "I would love to change the world, but they won't give me the source code."
         ]
-        import random
         if st.button("Relieve Exam Stress (Joke)"):
             st.info(f"_{random.choice(jokes)}_")
 
+
+# --- MAIN EXECUTION PIPELINE ---
+def main():
+    setup_page()
+    secrets_dict = load_secrets()
+    
+    # Render Login System
+    authenticator, name, authentication_status = render_login_system(secrets_dict)
+    
+    # Handle Unauthenticated State
+    if authentication_status is False:
+        st.error("Username/password is incorrect. Please try again.")
+        
+    if authentication_status is not True:
+        render_public_view(secrets_dict)
+        st.stop()
+        
+    # Handle Authenticated State
+    st.sidebar.title(f"Welcome, {name} 🎓")
+    authenticator.logout("Logout", "sidebar")
+    
+    tab_ml, tab_ensemble, tab_ai, tab_wellness, tab_games, tab_library, tab_growth = st.tabs([
+        "🎯 AI Predictor", 
+        "🔬 Ensemble Lab",
+        "🤖 AI Mentor",
+        "🧘 Zen Zone", 
+        "🎮 Brain Games",
+        "📚 Global Library",
+        "🌱 Daily Life & Growth"
+    ])
+    
+    with tab_ml: render_ml_predictor()
+    with tab_ensemble: render_ensemble_lab()
+    with tab_ai: render_ai_mentor(secrets_dict)
+    with tab_wellness: render_wellness_zen()
+    with tab_games: render_brain_games()
+    with tab_library: render_global_library()
+    with tab_growth: render_daily_growth(secrets_dict)
+
+
+if __name__ == "__main__":
+    main()
